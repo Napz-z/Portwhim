@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { Activity, ArrowDownUp, ArrowUpRight, Boxes, Check, ChevronRight, CircleHelp, Copy, Database, Globe, LayoutGrid, List, LoaderCircle, Monitor, Network, Pause, Play, Search, Square, Terminal, X } from 'lucide-react';
 import type { Listener, Snapshot } from './shared';
 import './style.css';
+import './brand.css';
 
 const memory=(v:number|null)=>v===null?'—':v<1048576?`${(v/1024).toFixed(0)} KB`:`${(v/1048576).toFixed(1)} MB`;
 const cpu=(v:number|null)=>v===null?'—':`${v.toFixed(1)}%`;
@@ -39,7 +40,7 @@ function App(){
   }
   return <div className="app-shell">
     <aside className="sidebar">
-      <div className="brand"><span className="brand-icon"><Network size={23}/></span><span>portwhim<span className="version">v0.1</span></span></div>
+      <div className="brand"><img className="brand-logo" src="./brand/mark.svg" alt="Portwhim logo"/><span>portwhim<span className="version">v0.1</span></span></div>
       <div className="workspace"><div className="machine"><Monitor size={19}/></div><div><strong>Local workspace</strong><small>{data?.hostname||'Your computer'}</small></div><span className="dot"/></div>
       <p className="nav-label">WORKSPACE</p>
       <button className={`nav ${filter==='all'?'active':''}`} onClick={()=>setFilter('all')}><Activity size={18}/> All listeners <b>{all.length}</b></button>

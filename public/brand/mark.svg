@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <title>Portwhim — occupied port</title>
+  <rect width="512" height="512" fill="#f5f3ed"/>
+  <path fill="#18201d" d="M56 56H456V180H394V118H118V394H394V338H456V456H56Z"/>
+  <path fill="#18201d" d="M236 194H278V236H236ZM236 282H278V324H236Z"/>
+  <path fill="#6fc6a0" d="M394 196H456V322H394Z"/>
+</svg>

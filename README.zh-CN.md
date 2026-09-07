@@ -1,5 +1,9 @@
 # Portwhim
 
+<img src="public/brand/mark.svg" width="88" alt="Portwhim Logo" />
+
+已采用直角版 Logo：中心冒号对应 localhost 端口语法，右侧薄荷绿色块代表占用的端口。原始确认稿保存在 `docs/brand/approved-reference.png`，可编辑图标在 `public/brand/mark.svg`。
+
 一个小而美的本机端口与进程查看工具。桌面界面使用 Electron、React 和 TypeScript，数据保留在本机。
 
 ## 直接运行

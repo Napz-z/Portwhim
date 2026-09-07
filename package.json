@@ -45,17 +45,20 @@
     ],
     "asar": true,
     "win": {
+      "icon": "public/brand/icon.ico",
       "target": [
         "portable"
       ]
     },
     "mac": {
+      "icon": "public/brand/icon.png",
       "target": [
         "dmg"
       ],
       "category": "public.app-category.developer-tools"
     },
     "linux": {
+      "icon": "public/brand/icon.png",
       "target": [
         "AppImage"
       ],

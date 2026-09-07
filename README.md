@@ -1,5 +1,7 @@
 # Portwhim
 
+<img src="public/brand/mark.svg" width="88" alt="Portwhim logo" />
+
 **A little clarity for your localhost.**
 
 A small desktop home for local ports and the processes behind them. Find what owns `:3000`, inspect it, copy what you need, and get back to building.

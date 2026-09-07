@@ -13,7 +13,9 @@ function selected(id:unknown):Listener{
   if(!row)throw new Error('Selection expired. Select the process again.');return row;
 }
 app.whenReady().then(()=>{
+  app.setAppUserModelId('dev.portwhim.desktop');
   win=new BrowserWindow({width:1440,height:940,minWidth:1000,minHeight:680,backgroundColor:'#0c1015',title:'Portwhim',autoHideMenuBar:true,
+    icon:path.join(__dirname,'../dist/brand/icon.png'),
     webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
   win.webContents.setWindowOpenHandler(()=>({action:'deny'}));
   win.webContents.on('will-navigate',e=>e.preventDefault());

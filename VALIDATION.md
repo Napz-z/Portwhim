@@ -1,5 +1,7 @@
 # MVP verification — 2026-09-07
 
+Brand update: the owner-approved straight-corner logo is now used by the sidebar, window and packaged Windows executable. Strict type checking and production build passed. The new packaged application launched successfully, loaded the SVG, scanned real ports, and rendered list/map views without renderer errors. Windows executable icon resources were replaced with the exported seven-resolution ICO and checked for presence. Current screenshots were refreshed from this branded build without a temporary server.
+
 Environment: Windows x64, Node 24.19.0, Electron 44.2.0, production React bundle. No macOS/Linux host was available; the CI matrix is configured but has not been run remotely.
 
 Passed:
@@ -13,6 +15,6 @@ Passed:
 
 The desktop test intercepts `shell.openExternal` to check the generated URL without opening a browser, and substitutes native dialog responses to test cancel/confirm deterministically. It does not test browser HTTP rendering or native dialog appearance. All test termination targets are test-owned fixtures.
 
-Screenshots in `docs/` are from the actual Windows app with real local data, including a temporary test server. The screenshot fixture is no longer running. No simulated list is presented as live data.
+Screenshots in `docs/` are from the actual Windows app with real local data. Earlier MVP screenshots included a temporary test server; the latest brand-update screenshots do not. No simulated list is presented as live data.
 
 The local Windows bundle is unsigned. Its Electron runtime was downloaded from a mirror and matched the SHA-256 in the installed official Electron npm package. Other operating systems, signing/notarization, installer UX, force-kill, remote connections and Docker container attribution remain outside this validation.
