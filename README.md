@@ -1,232 +1,217 @@
-<div align="center">
-  <img src="public/brand/mark.svg" width="96" alt="Portwhim Logo" />
-  <h1>Portwhim</h1>
-  <p><strong>端口被谁占了？打开就知道。</strong></p>
-  <p>查看本机端口，找到背后的进程，让 localhost 重新井井有条。</p>
-  <p>Electron · React · TypeScript · 本地运行 · MIT</p>
-  <p><a href="#快速开始">快速开始</a> · <a href="#使用指南">使用指南</a> · <a href="#为什么选择-portwhim">为什么选择 Portwhim</a> · <a href="README.en.md">English</a></p>
-</div>
+# Portwhim
 
-![Portwhim 桌面界面：真实本机端口与进程数据](docs/screenshot.png)
+<img src="public/brand/mark.svg" width="88" alt="Portwhim logo" />
 
-## Portwhim 是什么？
+**A little clarity for your localhost.**
 
-Portwhim 是面向开发者的**本机端口与进程管理桌面工具**。它将 TCP 监听端口、UDP 绑定、进程身份和资源占用放在同一个界面中，支持搜索、筛选、进程关系查看，以及确认后停止进程。
+A small desktop home for local ports and the processes behind them. Find what owns `:3000`, inspect it, copy what you need, and get back to building.
 
-当开发服务器报出 `EADDRINUSE`，你不必反复查端口、记 PID、切换到进程管理器：搜索端口，检查进程详情，再决定打开服务还是停止它。
+Electron · React · TypeScript · Local only · MIT
 
-适合经常同时运行前端、后端、数据库和脚本服务的开发者，也适合想用图形界面理解本机服务的新手。
+[中文说明](README.zh-CN.md)
 
-> 当前版本为 **0.1.0**，界面为英文。Windows 已有本地验证记录；macOS、Linux 已有采集适配和打包配置，仍需对应平台验证。详见 [验证记录](VALIDATION.md)。
+![Portwhim desktop running with real local data](docs/screenshot.png)
 
-## 为什么选择 Portwhim？
+## Why Portwhim?
 
-### 少切换几个窗口，少猜几个进程
+An `EADDRINUSE` error should not turn into a hunt across terminals and process managers. Portwhim brings the port, its owner, its resource usage and the next action into one desktop workflow.
 
-- **端口冲突找得到来源**：按端口、PID、进程名、服务名或绑定地址搜索，直接进入进程详情。
-- **多个开发服务看得清楚**：识别 Next.js、Vite、Laravel、Node.js、Python，以及 PostgreSQL、Redis、MySQL、Docker 的常见进程或命令特征。
-- **一个进程占了几个端口，一起看**：进程视图按 PID 汇总端口，详情面板列出同进程的其他 socket，停止前可以先看影响范围。
-- **资源信息不用另找**：在可获取时展示进程启动时间、CPU、常驻内存（RSS），支持按内存从高到低排序。
-- **常用操作就在旁边**：点击复制端口或 PID，为 TCP 条目打开 localhost，经过原生确认后停止进程。
-- **数据留在本机**：无需账户，没有云后端、遥测或远程端口探测；原始命令行仅在主进程中用于识别，不传入界面。
+- **Find the owner:** search by port, PID, process, service or bind address.
+- **Understand the impact:** inspect the process and its other sockets before stopping it.
+- **Recognize familiar services:** identify common framework and database signatures, with explicit labels for unverified port hints.
+- **Stay in one place:** copy a PID, open localhost or confirm a process stop from the inspector.
+- **Keep it local:** no account, cloud backend or telemetry.
 
-### 与其他方案如何取舍？
+Built for developers running several frontend, backend, database and script services at once. The current release is **0.1.0**, with an English interface. Windows has local validation records; macOS and Linux still need platform validation.
 
-下表比较的是常见使用方式，不是性能基准，也不代表每款同类工具的完整能力。
+### How it compares
 
-| 方案 | 更适合的任务 | Portwhim 的侧重点 |
+This compares common workflows, not benchmarks or every feature of individual products.
+
+| Approach | Useful for | Where Portwhim helps |
 | --- | --- | --- |
-| `netstat` / `ss` / `lsof` 等命令行工具 | 终端排查、脚本和自动化 | 将端口、进程详情、筛选和操作整合为可浏览的桌面工作流 |
-| 任务管理器、系统活动监视工具 | 查看整机进程与资源情况 | 从一个端口出发，追到进程及其其他端口 |
-| 端口释放类命令行工具 | 已知目标后快速结束占用者 | 先查看名称、启动时间、资源和关联端口，再确认停止 |
-| 网络扫描与抓包工具 | 主机探测、连接分析、数据包排查 | 专注本机监听与绑定的归属，适合日常开发排障 |
+| `netstat`, `ss`, `lsof` | Terminal diagnostics, scripting and automation | Combines ownership, inspection, filtering and actions in a desktop interface |
+| Task managers and activity monitors | System-wide processes and resource usage | Starts with a port and leads to its owner and sibling sockets |
+| Port-killing utilities | Ending an already identified port owner quickly | Shows identity, resource usage and affected sockets before confirmation |
+| Network scanners and packet analyzers | Host discovery, connections and packet inspection | Focuses on local listeners and bindings for everyday development |
 
-Portwhim 的优势是**把日常端口排障需要的信息和动作放在一起**。它使用 Electron，应用包包含桌面运行时，体积不会像原生单文件命令行工具一样小；目前也没有命令行自动化接口。
+Portwhim's advantage is a focused, visual workflow. It includes the Electron runtime, so its package is larger than a small native CLI tool. It does not currently provide a command-line automation interface.
 
-## 快速开始
+## Quick start
 
-### 从源码运行
-
-准备 **Node.js 24** 和 **pnpm 11**，与项目贡献指南和 CI 配置保持一致。获取仓库源码并进入项目根目录后运行：
+Install Node.js 24 and pnpm 11, matching the contribution guide and CI configuration.
 
 ```sh
 pnpm install
 pnpm dev
 ```
 
-命令会启动开发服务器和 Portwhim 桌面窗口。**请使用自动打开的桌面窗口**：在普通浏览器中访问 Vite 地址，无法读取本机进程数据。首次扫描可能需要几秒钟。
+The command launches the desktop app and the local renderer development server. Open the **desktop window**, not the Vite URL: the browser does not have access to native process APIs. The first scan may take a few seconds.
 
-如果只想运行生产构建：
+Production build:
 
 ```sh
 pnpm build
 pnpm start
 ```
 
-`pnpm start` 使用已生成的构建文件；首次运行或修改源码后，应先执行 `pnpm build`。
-
-### 使用已构建的 Windows 应用
-
-如果你拿到维护者提供的 Windows 构建包：
-
-- **Portable `.exe`**：直接运行，无需另装 Node.js。
-- **解压版 ZIP**：先解压整个文件夹，再运行其中的 `Portwhim.exe`。请保留旁边的运行库和 `resources` 目录，不要只移动 exe。
-
-当前仓库没有配置公开下载地址；以上说明不表示已经发布 GitHub Release。本地验证过的 Windows 构建未签名，当前没有自动更新功能。
-
-## 使用指南
-
-### 1. 解决“3000 端口被占用”
-
-1. 打开 Portwhim，等待首次扫描完成。
-2. 按 `Ctrl+K`（macOS 为 `⌘K`），输入 `3000`。搜索是文本匹配，请确认结果的 **PORT** 列确实是目标端口。
-3. 点击对应行或右侧箭头，打开 **PROCESS INSPECTOR**。
-4. 核对进程名称、PID、启动时间，以及 **Other sockets in this process** 中列出的其他端口。
-5. 如果它是你要继续使用的 Web 服务，点击 **Open localhost**；如果确认是不再需要的进程，点击 **Stop process**，在系统确认框中确认。
-6. 查看刷新后的结果，再启动你的开发服务器。
-
-**停止的是整个进程，不是单独释放某个端口。** 该进程退出后，其所有端口都会关闭，未保存的工作可能丢失。Windows 会立即终止进程；macOS/Linux 发送 `SIGTERM`，进程可能延迟退出或忽略信号。Portwhim 不会继续强制结束，也不会终止整个进程树。
-
-### 2. 看清当前运行了哪些服务
-
-| 界面入口 | 作用 |
-| --- | --- |
-| **All listeners** | 查看 TCP 监听端口与 UDP 本地绑定，包含 IPv4 / IPv6 |
-| **Dev services** | 查看识别到的应用、数据库和容器相关条目；它是规则分类，不是完整项目清单 |
-| **Network bound** | 查看非回环绑定，包括所有网卡和特定网络地址 |
-| 搜索框 | 匹配端口、PID、进程、服务和地址，不区分大小写 |
-| **All protocols / TCP / UDP** | 按协议筛选 |
-| **Port / Memory** | 在端口升序与进程内存降序之间切换 |
-| 列表 / **Process map** 图标 | 切换逐端口列表和按进程归组的卡片 |
-
-搜索、侧栏分类和协议筛选可以组合使用；切换到进程视图后，仍然应用当前筛选条件。
-
-![进程视图：查看一个进程绑定的多个端口](docs/process-map.png)
-
-### 3. 查看详情、复制信息和刷新
-
-- **查看详情**：点击一行，查看绑定地址、作用范围、启动时间、CPU、RSS 内存和识别依据。
-- **复制信息**：点击列表中的端口或 PID；详情中也有复制入口。
-- **打开服务**：详情中的 **Open localhost** 为 TCP 条目打开 `http://localhost:端口`；IPv6 回环地址使用 `http://[::1]:端口`。UDP 不支持该操作。
-- **自动刷新**：默认每 5 秒请求扫描一次，正在扫描时不重复发起；点击暂停图标可暂停，点击播放图标恢复。
-- **手动刷新**：点击 **Refresh**，暂停自动刷新时也可以使用。扫描失败时会提示错误并保留上次成功的数据。
-- **关闭面板**：按 `Esc` 关闭详情或 About 对话框。
-
-### 4. 正确理解界面中的数字和标签
-
-| 信息 | 含义 |
-| --- | --- |
-| **Listening sockets** | TCP 监听与 UDP 绑定条目的数量，不是进程数量，也不是不同端口号的数量 |
-| **Dev services** 顶部卡片 | 识别到的相关进程数，按 PID 去重；侧栏同名计数是条目数 |
-| **Memory footprint** | 当前扫描中有内存数据的进程 RSS 总和，按 PID 去重；不是整机内存占用 |
-| 每行 CPU / Memory | 属于进程，同进程的多个端口共享这些数值，不应逐行相加 |
-| **port hint** | 仅由常用端口推测的服务，例如 5432 → PostgreSQL，未验证服务身份 |
-| **Process / command signature** | 根据进程名或命令特征识别，属于启发式判断 |
-| **— / Unavailable** | 操作系统未提供该字段，不代表数值为零 |
-
-## 常见问题
-
-### 没有数据显示，或提示 Desktop connection unavailable？
-
-请确认打开的是 Electron 桌面窗口，而非浏览器中的开发页面。源码方式使用 `pnpm dev`，或先 `pnpm build` 再 `pnpm start`。
-
-如果只是没有匹配项，先清空搜索、选择 **All listeners** 和 **All protocols**，再点击 **Refresh**。仍为空时，检查扫描提示、系统权限和工具是否可用；空列表不能证明电脑上没有服务。
-
-### 为什么进程信息不全，或 Stop process 按钮不可用？
-
-普通账户可能无法获取其他用户的进程信息，受限运行环境也可能影响采集。应用不会自动申请管理员权限。对于受保护或身份信息不足的进程，停止按钮会禁用。
-
-停止操作会在确认前和执行前核对 PID、名称与启动时间。遇到 **Selection expired** 或进程已变化的提示，请刷新后重新选择。该校验用于降低误操作风险，不等同于操作系统级原子身份保证。
-
-### 为什么 Open localhost 打不开？
-
-端口存在不表示它提供 HTTP 服务。数据库、HTTPS 服务或只绑定某个局域网地址的服务，可能无法通过这个快捷入口访问。请按服务的实际协议和绑定地址使用对应客户端。
-
-### Network bound 表示已经暴露到公网吗？
-
-不是。它只表示绑定地址不是回环地址；是否能从其他机器或公网访问，还取决于防火墙、路由和网络配置。Portwhim 不进行公网暴露检测。
-
-### 为什么停止后进程或端口又出现了？
-
-进程管理器、开发工具或服务管理器可能自动重启它。Unix 上的进程也可能没有响应 `SIGTERM`。请检查启动它的工具；Portwhim 不提供自动重启抑制或强制结束功能。
-
-### 能管理 Docker、远程服务器或网络连接吗？
-
-当前 Docker 标签只识别宿主进程特征，没有容器清单、端口映射归属查询或容器停止操作。进程图展示的是**本机进程与绑定端口的所属关系**，不展示远端连接、流量或数据包，也不支持 SSH 远程主机。
-
-### CPU 数值为什么与任务管理器不同？
-
-CPU 采样采用底层系统信息提供方的口径，采样周期可能与任务管理器不同，首次采样也可能不够稳定。它用于辅助观察，不是性能分析器。
-
-## 平台支持
-
-| 平台 | 当前实现 | 验证状态 |
-| --- | --- | --- |
-| Windows | 通过 `systeminformation` 获取系统端口与进程元数据；Portable 打包配置 | 已有真实扫描、测试进程停止、桌面交互和解压版运行记录 |
-| macOS | 采集适配与 DMG 打包配置 | 尚需 Mac 真机验证 |
-| Linux | 采集适配与 AppImage 打包配置 | 尚需 Linux 真机验证 |
-
-Unix 系统依赖采集库使用的系统工具，例如 `ps`、`ss` / `netstat` 或 `lsof`，具体依平台而定。已有 CI 配置覆盖三个系统，但配置存在不代表所有平台已经通过验证。历史验证环境与范围见 [VALIDATION.md](VALIDATION.md)。
-
-## 开发与打包
-
-### 常用命令
+Package on the target operating system:
 
 ```sh
-pnpm install       # 安装依赖
-pnpm dev           # 启动桌面开发环境
-pnpm test          # 运行识别、筛选与身份保护等核心测试
-pnpm test:live     # 创建临时 TCP/UDP 测试进程，验证扫描和停止
-pnpm build         # TypeScript 检查并构建前端与 Electron 入口
-pnpm start         # 运行已有生产构建
-pnpm run pack      # 构建未封装的桌面应用目录，输出到 release/
-pnpm dist          # 构建当前目标平台的分发包，输出到 release/
+pnpm run pack # unpacked application in release/
+pnpm dist     # Windows portable exe / macOS dmg / Linux AppImage
 ```
 
-注意使用 **`pnpm run pack`**：`pnpm pack` 是包管理器生成源码 tarball 的另一条命令。
+Use `pnpm run pack`, not `pnpm pack` (the latter creates a source tarball). Run `pnpm build` before the first `pnpm start` and after source changes. Windows portable builds do not need Node.js installed. For macOS distribution, configure your own Developer ID signing and notarization. This project does not ship signing credentials or automatic updates.
 
-建议在对应目标操作系统上打包。Windows 默认目标为 Portable，macOS 为 DMG，Linux 为 AppImage。macOS 公开分发需另行配置 Developer ID 签名和公证；仓库不包含签名凭据。
+## What works
 
-真实集成测试只停止它自行创建的临时进程，不会以已有用户进程为目标。运行需要正常的本机进程访问权限。
+- Local TCP listeners and bound UDP sockets, including IPv4 and IPv6.
+- PID, process name, port, protocol, bind address, process start time, CPU and resident memory when available.
+- Next.js, Vite, Laravel, Node.js, Docker, PostgreSQL, Redis, MySQL and Python signatures. A database inferred only from its usual port is explicitly marked **port hint**.
+- Search by port, PID, process, service or address. Filter dev services, network-bound sockets and TCP/UDP. Sort by port or memory.
+- Process map: one process with its bound sockets. This is a local ownership map, not a remote connection graph.
+- Five-second refresh with pause/resume, manual refresh, empty states, error messages, and retained last successful data when a scan fails.
+- Process inspector with start time, CPU, memory, recognition confidence and sibling sockets.
+- Copy PID or port; open an HTTP localhost URL for a TCP socket.
+- Stop a process with native confirmation and a fresh PID/name/start-time check. Protected or unverifiable processes cannot be stopped.
+- No account, cloud backend, remote port probes or analytics. Raw command lines are used for recognition in the main process and are not sent to the UI.
 
-### 项目结构
+## Usage guide
+
+### Resolve a port conflict
+
+1. Open the desktop app and wait for the first scan.
+2. Press `Ctrl+K` / `⌘K` and enter `3000`. Search matches text, so verify that the **PORT** column is the port you want.
+3. Click the row or its arrow to open **PROCESS INSPECTOR**.
+4. Check the process name, PID, start time and **Other sockets in this process**.
+5. For a web service you want to keep, choose **Open localhost**. For a process you no longer need, choose **Stop process** and confirm in the native dialog.
+6. Check the refreshed results, then restart your development server.
+
+Stopping affects the **whole process**, including its other ports, and may lose unsaved work. Read the platform notes below for termination behavior.
+
+### Explore running services
+
+| Control | What it does |
+| --- | --- |
+| **All listeners** | Shows TCP listeners and UDP bindings |
+| **Dev services** | Shows recognized apps, databases and container-related entries; this is rule-based classification, not a project inventory |
+| **Network bound** | Shows non-loopback bindings, including all-interface bindings |
+| Search | Matches port, PID, process, service and address, case-insensitively |
+| **All protocols / TCP / UDP** | Filters by protocol |
+| **Port / Memory** | Toggles ascending port order and descending process memory order |
+| List / **Process map** | Switches between individual sockets and cards grouped by PID |
+
+Search, category and protocol filters work together and also apply to the process map.
+
+![Process map showing processes and their bound sockets](docs/process-map.png)
+
+Click a port or PID to copy it. The inspector includes bind address, scope, start time, CPU, resident memory and recognition evidence. **Open localhost** opens an HTTP URL for TCP entries; UDP entries cannot use this action.
+
+Automatic refresh requests a scan every five seconds without overlapping an active scan. Pause it to inspect the current snapshot, resume with the play button, or use **Refresh** manually even while paused. Failed scans retain the last successful data and display an error.
+
+### Read the numbers correctly
+
+- **Listening sockets** counts TCP listener and UDP binding entries, not processes or unique port numbers.
+- The **Dev services** summary card counts distinct PIDs; the sidebar count is the number of matching entries.
+- **Memory footprint** sums available RSS measurements once per PID in the full snapshot. It is not total system memory usage.
+- Per-row memory and CPU belong to the process and are shared by all its sockets; do not add duplicate rows together.
+- **port hint** means a usual port suggests a service, not that the service identity is verified.
+- **Process / command signature** is a heuristic match against process or command information.
+- **— / Unavailable** means metadata was not provided, not that the value is zero.
+
+## Frequently asked questions
+
+### Why is the list empty or the desktop connection unavailable?
+
+Use the Electron window launched by `pnpm dev`, or run `pnpm build` followed by `pnpm start`. An ordinary browser tab cannot access the native bridge. Clear search, select **All listeners** and **All protocols**, then refresh. If the list remains empty, check scan warnings and OS access restrictions.
+
+### Why is Stop process disabled or rejected?
+
+Protected processes and processes without verifiable identity cannot be stopped. Limited OS permissions can also hide metadata. Portwhim does not elevate automatically. If a selection expires or the process changes, refresh and select it again.
+
+### Why does Open localhost fail?
+
+A bound port does not necessarily serve HTTP. HTTPS, databases and services bound only to a specific network address may require their actual URL or a dedicated client.
+
+### Why did the process come back after stopping it?
+
+A supervisor, development tool or service manager may restart it. On Unix, a process may also ignore or delay handling SIGTERM. Check the tool that launched it; Portwhim does not disable restart policies or escalate to force-kill.
+
+### Can I manage Docker containers or remote hosts?
+
+Current Docker recognition only identifies host-process signatures. Container inventories, published-port attribution, container stop actions and SSH hosts are not implemented. The process map shows local socket ownership, not remote connections or traffic.
+
+### Where can I download a Windows build?
+
+This repository does not currently configure a public download link. If you receive a portable Windows executable from the maintainer, run it directly without Node.js. For an unpacked ZIP, extract the entire folder and run `Portwhim.exe`; keep its runtime files and `resources` directory together. The locally validated Windows build is unsigned and has no automatic updater.
+
+## Platform notes
+
+| Platform | Implementation | Validation in this workspace |
+| --- | --- | --- |
+| Windows | Native socket/process metadata through systeminformation | Live scan, process metadata and owned-fixture termination tested |
+| macOS | systeminformation / OS tools | Supported by adapter; requires testing on a Mac |
+| Linux | systeminformation / OS tools | Supported by adapter; requires testing on Linux |
+
+An unprivileged account may not see other users' process metadata. Unknown values appear as `—`; the app does not silently request administrator privileges. Unix systems need standard process/socket tools used by systeminformation (for example `ps`, `ss`/`netstat`, and `lsof` depending on OS). Do not treat an empty scan as proof that the machine has no services if OS permissions or tooling are restricted.
+
+UDP does not have TCP's LISTEN state; UDP rows represent local bindings. Memory and CPU are **per process**, not per socket; the summary deduplicates PIDs. CPU sampling semantics follow the OS provider and may not match Task Manager's interval. The first sample can be less useful than subsequent ones.
+
+“Network bound” means a non-loopback binding; it is not a firewall or Internet-exposure test. Opening localhost does not promise the service speaks HTTP. HTTPS, database sockets and services bound only to a LAN address may not load in a browser. Docker recognition identifies a host process; container inventories, published-port attribution and container stop operations are future work.
+
+Stop affects the selected **whole process**, not just one socket or a process tree. On Unix it sends SIGTERM; on Windows Node terminates the process immediately. The UI confirms this before acting. A supervisor may restart a process, and a Unix process may ignore SIGTERM. The app does not escalate to force-kill. Revalidation narrows PID reuse risk but is not an atomic kernel handle guarantee.
+
+## Keyboard and controls
+
+- `Ctrl+K` / `⌘K`: focus search.
+- `Esc`: close the inspector or About dialog.
+- Click a service or the row arrow to inspect it.
+- Click a port or PID to copy it.
+- Use the list/map toggle to switch to process ownership cards.
+
+## Architecture
 
 ```text
-src/main.tsx          桌面界面、搜索筛选、进程详情与关系视图
-src/shared.ts        前端与原生层之间的数据和接口类型
-src/style.css        界面样式
-src/brand.css        品牌样式
-electron/            Electron 原生层（见下）
-  main.ts            窗口、调用校验、剪贴板、URL 与原生确认
-  preload.ts         隔离的前端桥接接口
-  scanner.ts         系统采集、数据归一化、身份复核与停止
-  detect.ts          服务识别规则
-scripts/             开发启动与构建脚本
-tests/               核心测试与真实进程集成测试
-public/brand/        品牌资产，mark.svg 为可编辑主文件
-docs/                真实应用截图与品牌参考
+src/main.tsx            React desktop UI
+src/style.css           Dark mint visual system
+src/shared.ts           Typed native bridge contract
+electron/preload.ts     Minimal context-isolated IPC API
+electron/main.ts        Window, trusted IPC, clipboard, URLs, confirmation
+electron/scanner.ts     OS adapter, normalization, identity checks, stop
+electron/detect.ts      Pure, ordered service recognizers
+tests/                 Classification and real owned-process integration
+scripts/               Dev and production build orchestration
 ```
 
-界面通过有限的类型化接口请求操作，不能直接执行 shell 命令；停止请求使用扫描快照签发的条目 ID，由主进程解析目标并复核身份。窗口启用上下文隔离与沙箱，禁用 Node 集成；生产界面从本地构建文件加载。
+The renderer cannot run shell commands or choose an arbitrary process ID to stop. It sends only a snapshot-issued selection ID. The main process resolves the selection, verifies the calling frame, constructs localhost URLs itself, and validates clipboard fields. Browser navigation, new windows and permission requests are denied. The production renderer is loaded from local bundled files with a content security policy; no local HTTP control API is exposed.
 
-新增服务识别规则时，请在 `electron/detect.ts` 中保持规则明确，并为误判情况添加测试。原生数据提供方留在 `electron/`，通过 `src/shared.ts` 扩展接口。
+## Extending it
 
-## 后续方向
+Keep native providers in `electron/`, expose typed data in `src/shared.ts`, and add narrowly scoped bridge methods. The current adapter boundary is the `scan(): Promise<Snapshot>` function.
 
-以下是候选扩展，**尚未实现，也不代表发布时间承诺**：
+Planned, not included in 0.1:
 
-- 项目与进程分组、自定义识别规则、偏好设置和托盘模式。
-- Docker 容器清单、端口映射归属和容器级操作。
-- 远端连接模型与连接关系图。
-- 以快照差异推送替代定时轮询。
-- 显式配置的 SSH 远程主机与优先只读的数据采集。
+1. Connection graph: a separate connection model for remote endpoints, with PID edges and IPv6 normalization.
+2. Docker provider: optional daemon connection, published ports and container-aware actions with separate confirmation.
+3. WebSocket updates: push snapshot diffs to the renderer instead of polling; no unauthenticated remote control endpoint.
+4. Remote connections: explicit host profiles, SSH transport, authenticated read-only collection first.
+5. Process/project grouping, custom recognition rules, preferences and tray mode.
 
-## 参与贡献
+Do not mix an inferred service label with verified framework identity. Add fixture tests for each new recognizer, especially false positives.
 
-欢迎提交可复现的问题、改进建议和小范围 PR，开始前请阅读 [贡献指南](CONTRIBUTING.md)。
+## Tests
 
-报告采集问题时，请附上操作系统及版本、复现步骤、预期结果与实际表现，并去除日志或截图中的密钥、个人路径等敏感信息。提交代码前运行 `pnpm test`、`pnpm test:live` 和 `pnpm build`，说明实际验证的平台。
+```sh
+pnpm test
+pnpm test:live
+pnpm build
+```
 
-## 许可证
+The live integration test creates its own ephemeral TCP and UDP server, checks process metadata, rejects a stale identity, stops **only that fixture**, and verifies its listener disappears. No existing user processes are stopped by tests. Run it with normal OS access; heavily sandboxed shells can suppress process metadata.
 
-[MIT](LICENSE) © Portwhim contributors.
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Keep the application local-first, the bridge small and each view useful. Please include OS/version and reproducible steps for scanner bugs, with secrets and personal paths removed.
+
+MIT © Portwhim contributors.
