@@ -1,5 +1,9 @@
 # MVP verification — 2026-09-07
 
+## Project attribution update — 2026-09-08
+
+Windows: strict TypeScript check and production build passed. Eight tests passed, including real TCP/UDP fixture project name/directory and immediate parent PID attribution, fixture termination, quoted paths with spaces, node_modules exclusion, missing evidence, command-line privacy, cyclic ancestry and recycled parent rejection. Linux cwd support and macOS paths are implemented but not validated on those operating systems. The new detail panel has not undergone automated visual interaction testing.
+
 Brand update: the owner-approved straight-corner logo is now used by the sidebar, window and packaged Windows executable. Strict type checking and production build passed. The new packaged application launched successfully, loaded the SVG, scanned real ports, and rendered list/map views without renderer errors. Windows executable icon resources were replaced with the exported seven-resolution ICO and checked for presence. Current screenshots were refreshed from this branded build without a temporary server.
 
 Environment: Windows x64, Node 24.19.0, Electron 44.2.0, production React bundle. No macOS/Linux host was available; the CI matrix is configured but has not been run remotely.

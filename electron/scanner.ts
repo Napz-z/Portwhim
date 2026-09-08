@@ -2,6 +2,7 @@ import si from 'systeminformation';
 import os from 'node:os';
 import { randomUUID } from 'node:crypto';
 import { detect } from './detect';
+import { createProvenanceReader } from './provenance';
 import type { Listener, Snapshot } from '../src/shared';
 export function isListener(c: {protocol:string;state:string}) {
   return c.protocol.toLowerCase().startsWith('tcp') ? c.state.toUpperCase()==='LISTEN' || c.state.toUpperCase()==='LISTENING' : c.protocol.toLowerCase().startsWith('udp');
@@ -16,6 +17,8 @@ export async function scan(): Promise<Snapshot> {
     si.processes().catch(()=>{warnings.push('Process details are unavailable. Some fields and stop actions are disabled.');return {list:[]};})
   ]);
   const byPid=new Map(processes.list.map(p=>[p.pid,p]));
+  const provenanceReader=createProvenanceReader(byPid);
+  const provenance=new Map<number,Awaited<ReturnType<typeof provenanceReader>>>();
   if(processes.list.length===0)warnings.push('The OS returned no process metadata. Try running outside a restricted shell.');
   const appPids=new Set([process.pid]);
   for(let i=0;process.versions.electron&&i<processes.list.length;i++){
@@ -30,7 +33,9 @@ export async function scan(): Promise<Snapshot> {
     const key=`${c.pid}|${protocol}|${c.localAddress}|${port}`;if(seen.has(key))continue;seen.add(key);
     const p=byPid.get(c.pid); const name=p?.name||c.process||'Unknown';
     const started=p?.started||null;
+    if(!provenance.has(c.pid))provenance.set(c.pid,await provenanceReader(c.pid));
     listeners.push({id:randomUUID(),pid:c.pid,name,port,protocol,address:c.localAddress,started,
+      provenance:provenance.get(c.pid)!,
       cpu:p&&Number.isFinite(p.cpu)?p.cpu:null,memory:p&&Number.isFinite(p.memRss)?p.memRss*1024:null,
       ...detect(name,`${p?.command||''} ${p?.params||''}`,port),scope:scope(c.localAddress),
       canStop:!!started&&c.pid>4&&!appPids.has(c.pid)&&c.pid!==process.ppid
