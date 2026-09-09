@@ -1,0 +1,275 @@
+[
+  {
+    "name": "HTTP conventional port",
+    "row": {
+      "protocol": "TCP",
+      "port": 80,
+      "address": "127.0.0.1",
+      "category": "system",
+      "service": "Unknown",
+      "confidence": "unknown"
+    },
+    "url": "http://127.0.0.1:80",
+    "reason": null
+  },
+  {
+    "name": "HTTPS all IPv4",
+    "row": {
+      "protocol": "TCP",
+      "port": 443,
+      "address": "0.0.0.0",
+      "category": "system",
+      "service": "Unknown",
+      "confidence": "unknown"
+    },
+    "url": "https://127.0.0.1:443",
+    "reason": null
+  },
+  {
+    "name": "HTTPS all IPv6",
+    "row": {
+      "protocol": "TCP",
+      "port": 8443,
+      "address": "::",
+      "category": "system",
+      "service": "Unknown",
+      "confidence": "unknown"
+    },
+    "url": "https://[::1]:8443",
+    "reason": null
+  },
+  {
+    "name": "HTTP IPv6 loopback",
+    "row": {
+      "protocol": "TCP",
+      "port": 8080,
+      "address": "::1",
+      "category": "system",
+      "service": "Unknown",
+      "confidence": "unknown"
+    },
+    "url": "http://[::1]:8080",
+    "reason": null
+  },
+  {
+    "name": "Vite verified service",
+    "row": {
+      "protocol": "TCP",
+      "port": 5173,
+      "address": "127.0.0.1",
+      "category": "app",
+      "service": "Vite",
+      "confidence": "process"
+    },
+    "url": "http://127.0.0.1:5173",
+    "reason": null
+  },
+  {
+    "name": "Next.js verified service",
+    "row": {
+      "protocol": "TCP",
+      "port": 3000,
+      "address": "127.0.0.1",
+      "category": "app",
+      "service": "Next.js",
+      "confidence": "process"
+    },
+    "url": "http://127.0.0.1:3000",
+    "reason": null
+  },
+  {
+    "name": "Laravel loopback alias",
+    "row": {
+      "protocol": "TCP",
+      "port": 8000,
+      "address": "127.0.0.2",
+      "category": "app",
+      "service": "Laravel",
+      "confidence": "process"
+    },
+    "url": "http://127.0.0.2:8000",
+    "reason": null
+  },
+  {
+    "name": "UDP web port",
+    "row": {
+      "protocol": "UDP",
+      "port": 80,
+      "address": "127.0.0.1",
+      "category": "system",
+      "service": "Unknown",
+      "confidence": "unknown"
+    },
+    "url": null,
+    "reason": "UDP cannot be opened in a browser."
+  },
+  {
+    "name": "non HTTP 22",
+    "row": {
+      "protocol": "TCP",
+      "port": 22,
+      "address": "127.0.0.1",
+      "category": "system",
+      "service": "Unknown",
+      "confidence": "unknown"
+    },
+    "url": null,
+    "reason": "This service is not an HTTP browser candidate."
+  },
+  {
+    "name": "non HTTP 53",
+    "row": {
+      "protocol": "TCP",
+      "port": 53,
+      "address": "127.0.0.1",
+      "category": "system",
+      "service": "Unknown",
+      "confidence": "unknown"
+    },
+    "url": null,
+    "reason": "This service is not an HTTP browser candidate."
+  },
+  {
+    "name": "non HTTP 135",
+    "row": {
+      "protocol": "TCP",
+      "port": 135,
+      "address": "127.0.0.1",
+      "category": "system",
+      "service": "Unknown",
+      "confidence": "unknown"
+    },
+    "url": null,
+    "reason": "This service is not an HTTP browser candidate."
+  },
+  {
+    "name": "non HTTP 445",
+    "row": {
+      "protocol": "TCP",
+      "port": 445,
+      "address": "127.0.0.1",
+      "category": "system",
+      "service": "Unknown",
+      "confidence": "unknown"
+    },
+    "url": null,
+    "reason": "This service is not an HTTP browser candidate."
+  },
+  {
+    "name": "non HTTP 3306",
+    "row": {
+      "protocol": "TCP",
+      "port": 3306,
+      "address": "127.0.0.1",
+      "category": "system",
+      "service": "Unknown",
+      "confidence": "unknown"
+    },
+    "url": null,
+    "reason": "This service is not an HTTP browser candidate."
+  },
+  {
+    "name": "non HTTP 5432",
+    "row": {
+      "protocol": "TCP",
+      "port": 5432,
+      "address": "127.0.0.1",
+      "category": "system",
+      "service": "Unknown",
+      "confidence": "unknown"
+    },
+    "url": null,
+    "reason": "This service is not an HTTP browser candidate."
+  },
+  {
+    "name": "non HTTP 6379",
+    "row": {
+      "protocol": "TCP",
+      "port": 6379,
+      "address": "127.0.0.1",
+      "category": "system",
+      "service": "Unknown",
+      "confidence": "unknown"
+    },
+    "url": null,
+    "reason": "This service is not an HTTP browser candidate."
+  },
+  {
+    "name": "database on web port",
+    "row": {
+      "protocol": "TCP",
+      "port": 80,
+      "address": "127.0.0.1",
+      "category": "database",
+      "service": "Unknown",
+      "confidence": "unknown"
+    },
+    "url": null,
+    "reason": "This service is not an HTTP browser candidate."
+  },
+  {
+    "name": "web name on non HTTP port",
+    "row": {
+      "protocol": "TCP",
+      "port": 22,
+      "address": "127.0.0.1",
+      "category": "system",
+      "service": "Vite",
+      "confidence": "process"
+    },
+    "url": null,
+    "reason": "This service is not an HTTP browser candidate."
+  },
+  {
+    "name": "generic Node runtime",
+    "row": {
+      "protocol": "TCP",
+      "port": 3000,
+      "address": "127.0.0.1",
+      "category": "app",
+      "service": "Node.js",
+      "confidence": "process"
+    },
+    "url": null,
+    "reason": "No reliable HTTP or HTTPS hint for this port."
+  },
+  {
+    "name": "unverified web name",
+    "row": {
+      "protocol": "TCP",
+      "port": 5173,
+      "address": "127.0.0.1",
+      "category": "system",
+      "service": "Vite",
+      "confidence": "port hint"
+    },
+    "url": null,
+    "reason": "No reliable HTTP or HTTPS hint for this port."
+  },
+  {
+    "name": "unknown port",
+    "row": {
+      "protocol": "TCP",
+      "port": 9100,
+      "address": "127.0.0.1",
+      "category": "system",
+      "service": "Unknown",
+      "confidence": "unknown"
+    },
+    "url": null,
+    "reason": "No reliable HTTP or HTTPS hint for this port."
+  },
+  {
+    "name": "LAN only",
+    "row": {
+      "protocol": "TCP",
+      "port": 80,
+      "address": "192.168.1.2",
+      "category": "system",
+      "service": "Unknown",
+      "confidence": "unknown"
+    },
+    "url": null,
+    "reason": "This binding does not listen on localhost."
+  }
+]

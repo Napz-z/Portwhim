@@ -3,6 +3,7 @@ use tauri::State;
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 use tauri_plugin_opener::OpenerExt;
+mod browser;
 pub mod scanner;
 use scanner::{Listener, Scanner, Snapshot};
 #[derive(Default)]
@@ -50,22 +51,9 @@ fn copy(
 #[tauri::command]
 fn open(app: tauri::AppHandle, state: State<'_, Store>, id: String) -> Result<(), String> {
     let row = selected(&state, &id)?;
-    if row.protocol != "TCP" {
-        return Err("Only TCP listeners can be opened".into());
-    }
+    let url = browser::open_target(&row)?;
     app.opener()
-        .open_url(
-            format!(
-                "http://{}:{}",
-                if row.address == "::1" {
-                    "[::1]"
-                } else {
-                    "localhost"
-                },
-                row.port
-            ),
-            None::<&str>,
-        )
+        .open_url(url, None::<&str>)
         .map_err(|e| e.to_string())
 }
 #[tauri::command]
