@@ -71,13 +71,13 @@ pub fn scope(address: &str) -> String {
 }
 fn stop_reason(pid: u32, birth: u64, present: bool, is_protected: bool) -> Option<String> {
     if pid > 0 && pid <= 4 {
-        Some("系统进程：为避免影响 Windows 或系统运行，不允许在此停止。".into())
+        Some("System process: stopping is disabled to protect system stability.".into())
     } else if pid == 0 || !present {
-        Some("无法确认端口所属进程：进程可能已退出，或系统未提供进程信息，请刷新后重试。".into())
+        Some("Process owner unavailable. The process may have exited or its details could not be read. Refresh and try again.".into())
     } else if is_protected {
-        Some("应用保护：不能停止 Portwhim 自身、其子进程或启动它的父进程。".into())
+        Some("Application protection: Portwhim, its child processes, and its parent process cannot be stopped here.".into())
     } else if birth == 0 {
-        Some("系统未提供此进程的启动时间，通常与访问权限有关。无法核实身份，因此禁用停止；不影响其他进程。".into())
+        Some("Start time unavailable, usually due to access restrictions. Stopping is disabled because this process cannot be verified. Other processes are unaffected.".into())
     } else {
         None
     }
@@ -90,7 +90,7 @@ fn scan_warnings(listeners: &[Listener]) -> Vec<String> {
     if listeners.iter().any(|l| l.pid > 4)
         && listeners.iter().filter(|l| l.pid > 4).all(|l| l.birth == 0)
     {
-        vec!["端口扫描成功，但本次无法核实任何普通进程的启动时间。进程详情可能受权限限制，停止操作已禁用。".into()]
+        vec!["Ports were scanned, but no non-system process start times could be verified. Access restrictions may limit process details. Stopping is disabled.".into()]
     } else {
         Vec::new()
     }
@@ -466,16 +466,16 @@ mod tests {
         assert_eq!(resource_memory(100, Some(0)), None);
         assert_eq!(resource_memory(0, Some(1024)), Some(1024));
         assert_eq!(resource_memory(100, None), None);
-        assert!(stop_reason(4, 0, true, true).unwrap().contains("系统进程"));
+        assert!(stop_reason(4, 0, true, true).unwrap().contains("System process"));
         assert!(stop_reason(500, 0, true, false)
             .unwrap()
-            .contains("启动时间"));
+            .contains("Start time"));
         assert!(stop_reason(500, 100, true, true)
             .unwrap()
-            .contains("应用保护"));
+            .contains("Application protection"));
         assert!(stop_reason(500, 0, false, false)
             .unwrap()
-            .contains("无法确认"));
+            .contains("Process owner unavailable"));
         assert!(stop_reason(500, 100, true, false).is_none());
     }
     #[test]
