@@ -1,3 +1,4 @@
+import './native';
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Activity, ArrowDownUp, ArrowUpRight, Boxes, Check, ChevronRight, CircleHelp, Copy, Database, Globe, LayoutGrid, List, LoaderCircle, Monitor, Network, Pause, Play, Search, Square, Terminal, X } from 'lucide-react';

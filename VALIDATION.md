@@ -1,3 +1,21 @@
+# Tauri migration verification — 2026-09-09
+
+Windows x64, Rust 1.98.1, Tauri 2.11.5, shared WebView2 152. Electron runtime, dependencies, entry points and JavaScript native providers have been removed from the active build. Approved brand assets are unchanged.
+
+Passed:
+- TypeScript check and Vite production build.
+- Three Rust unit tests: service signatures and port hints; binding scope; project marker lookup including dependency exclusion and relative-path rejection.
+- Real owned TCP/UDP fixture: native discovery, project name, parent information, stale start-time rejection, protected selection rejection, private identity field exclusion, termination and socket disappearance. A sibling probe stops only the fixture created by the test.
+- Actual release Tauri WebView: 161 real socket rows, search empty state, inspector, process map, loaded approved SVG; no observed page errors during interactions.
+- Native clipboard contents verified against selected port; invalid snapshot selection rejected.
+- Optimized Windows executable and NSIS installer generated successfully.
+
+Sizes: executable 4,639,744 bytes (4.42 MiB); installer 1,597,439 bytes (1.52 MiB). These exclude the shared WebView2 runtime and developer files. The previous Electron unpacked directory was 421,052,011 bytes (401.55 MiB); it is not a like-for-like download comparison. No runtime RAM benchmark was performed.
+
+Limitations: macOS/Linux are not locally validated. Native stop dialog appearance/cancel interaction and external browser HTTP rendering were not automated; actual termination logic was tested on owned processes. The installer was built but not installed during this check. Windows signing is not configured. Installer downloads WebView2 if absent; offline machines need it preinstalled. CPU is sampled by sysinfo and the initial sample is unavailable. Historical screenshots below predate Tauri.
+
+---
+
 # MVP verification — 2026-09-07
 
 ## Project attribution update — 2026-09-08

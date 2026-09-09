@@ -1,9 +1,11 @@
 # Contributing
 
-Use Node 24 and pnpm 11. Run `pnpm install`, then `pnpm dev`. Before a pull request run `pnpm test`, `pnpm test:live`, and `pnpm build` on the operating systems you can access. State which platforms were actually tested.
+Use Node 24, pnpm 11 and stable Rust. Windows builds require Microsoft C++ Build Tools and WebView2. macOS requires Xcode command line tools. Linux requires WebKitGTK 4.1 and Tauri's native build dependencies.
 
-Keep service detection pure and test misleading names/ports. Preserve null metadata instead of inventing values. Keep raw command lines in the native layer. New native operations require explicit typed inputs, sender checks, and main-process validation.
+Run pnpm install, then pnpm dev. Before submitting changes run pnpm build, pnpm test, pnpm test:live and pnpm run pack. State the operating systems actually tested.
 
-Do not add telemetry or remote connections implicitly. Discuss new native providers and external dependencies in an issue first. Small focused pull requests are easiest to review.
+The React interface calls a narrow typed Tauri adapter in src/native.ts. Rust owns scans, snapshot-issued selection IDs, process identity checks and native confirmation. Raw command lines must stay in Rust. Never expose arbitrary process IDs, URLs or shell commands as privileged frontend operations.
 
-Never use arbitrary existing processes to test stop actions. Spawn a fixture, retain its PID/start identity, and clean it up. UI and integration fixtures must not impersonate live production data.
+Never use existing user processes for stop tests. The ignored live integration suite creates its own TCP/UDP fixture and uses a sibling probe to verify identity and termination.
+
+Keep source, lockfiles and approved brand assets tracked; exclude compiled targets, installers and local build tools. Preserve public/brand/mark.svg and the approved reference.
