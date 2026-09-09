@@ -42,6 +42,7 @@ pub struct Listener {
     pub service: String,
     pub confidence: String,
     pub category: String,
+    pub system_managed: bool,
     pub scope: String,
     pub can_stop: bool,
     pub stop_reason: Option<String>,
@@ -218,7 +219,20 @@ pub fn ancestry(pid: Pid, sys: &System) -> Vec<Parent> {
 }
 fn protected(pid: Pid, sys: &System) -> bool {
     let own = Pid::from_u32(std::process::id());
-    if pid.as_u32() <= 4 || pid == own || sys.process(own).and_then(|p| p.parent()) == Some(pid) {
+    // Missing paths must not make a potentially critical Windows process stoppable.
+    // This precaution does not grant a System managed badge without path evidence.
+    if cfg!(windows)
+        && sys
+            .process(pid)
+            .is_some_and(|p| critical_windows_name(&p.name().to_string_lossy()))
+    {
+        return true;
+    }
+    if pid.as_u32() <= 4
+        || system_managed(pid, sys)
+        || pid == own
+        || sys.process(own).and_then(|p| p.parent()) == Some(pid)
+    {
         return true;
     }
     // UI ancestry is bounded; protection must cover the entire descendant tree.
@@ -234,6 +248,70 @@ fn protected(pid: Pid, sys: &System) -> bool {
         current = sys.process(id).and_then(|p| p.parent());
     }
     false
+}
+fn critical_windows_name(name: &str) -> bool {
+    [
+        "system",
+        "smss.exe",
+        "csrss.exe",
+        "wininit.exe",
+        "services.exe",
+        "lsass.exe",
+        "winlogon.exe",
+        "svchost.exe",
+        "lsaiso.exe",
+        "fontdrvhost.exe",
+        "dwm.exe",
+    ]
+    .contains(&name.to_ascii_lowercase().as_str())
+}
+// Name alone, missing metadata, and the legacy "system" category are not evidence.
+fn windows_system_identity(pid: u32, name: &str, exe: Option<&str>, root: &str) -> bool {
+    if pid == 4 {
+        return true;
+    }
+    let name = name.to_ascii_lowercase();
+    let known = [
+        "smss.exe",
+        "csrss.exe",
+        "wininit.exe",
+        "services.exe",
+        "lsass.exe",
+        "winlogon.exe",
+        "svchost.exe",
+        "lsaiso.exe",
+        "fontdrvhost.exe",
+        "dwm.exe",
+    ];
+    if !known.contains(&name.as_str()) {
+        return false;
+    }
+    let Some(exe) = exe else {
+        return false;
+    };
+    let root = root
+        .replace('/', "\\")
+        .trim_end_matches('\\')
+        .to_ascii_lowercase();
+    if root.is_empty() {
+        return false;
+    }
+    let exe = exe.replace('/', "\\").to_ascii_lowercase();
+    exe == format!("{root}\\system32\\{name}") || exe == format!("{root}\\syswow64\\{name}")
+}
+fn system_managed(pid: Pid, sys: &System) -> bool {
+    if !cfg!(windows) {
+        return false;
+    }
+    let root = std::env::var("SystemRoot").unwrap_or_default();
+    let p = sys.process(pid);
+    windows_system_identity(
+        pid.as_u32(),
+        &p.map(|p| p.name().to_string_lossy().into_owned())
+            .unwrap_or_default(),
+        p.and_then(|p| p.exe()).and_then(|p| p.to_str()),
+        &root,
+    )
 }
 fn provenance(pid: Pid, sys: &System, cache: &mut HashMap<PathBuf, Option<Project>>) -> Provenance {
     let chain = ancestry(pid, sys);
@@ -369,6 +447,7 @@ impl Scanner {
                     })
                     .unwrap_or_default();
                 let (service, category, confidence) = detect(&name, &command, port);
+                let system_managed = system_managed(id, &self.sys);
                 let origin = origins
                     .entry(pid)
                     .or_insert_with(|| provenance(id, &self.sys, &mut cache))
@@ -376,7 +455,7 @@ impl Scanner {
                 listeners.push(Listener {
                     id: uuid::Uuid::new_v4().to_string(),
                     pid,
-                    name,
+                    name: name.clone(),
                     port,
                     protocol: protocol.into(),
                     address: address.clone(),
@@ -399,9 +478,14 @@ impl Scanner {
                     service,
                     confidence,
                     category,
+                    system_managed,
                     scope: scope(&address),
                     can_stop: birth > 0 && !protected(id, &self.sys),
-                    stop_reason: stop_reason(pid, birth, p.is_some(), protected(id, &self.sys)),
+                    stop_reason: if system_managed {
+                        Some("System-managed process. Stopping is disabled to protect Windows services.".into())
+                    } else if cfg!(windows) && critical_windows_name(&name) {
+                        Some("Potential Windows system process. Stopping is disabled for safety.".into())
+                    } else { stop_reason(pid, birth, p.is_some(), protected(id, &self.sys)) },
                     provenance: origin,
                     birth,
                 });
@@ -425,7 +509,12 @@ impl Scanner {
     }
 }
 pub fn verify(row: &Listener) -> Result<System, String> {
-    if !row.can_stop || row.pid <= 4 || row.birth == 0 || row.pid == std::process::id() {
+    if !row.can_stop
+        || row.system_managed
+        || row.pid <= 4
+        || row.birth == 0
+        || row.pid == std::process::id()
+    {
         return Err("Protected process or identity unavailable.".into());
     }
     let mut sys = System::new();
@@ -461,12 +550,55 @@ pub fn terminate(row: &Listener) -> Result<(), String> {
 mod tests {
     use super::*;
     #[test]
+    fn system_classification_requires_evidence() {
+        let root = r"C:\Windows";
+        assert!(windows_system_identity(4, "", None, root));
+        for name in ["svchost.exe", "lsass.exe", "services.exe", "csrss.exe"] {
+            assert!(windows_system_identity(
+                800,
+                name,
+                Some(&format!(r"C:\Windows\System32\{name}")),
+                root
+            ));
+            assert!(!windows_system_identity(800, name, None, root));
+            assert!(!windows_system_identity(
+                800,
+                name,
+                Some(&format!(r"C:\Users\user\{name}")),
+                root
+            ));
+            assert!(critical_windows_name(name));
+        }
+        assert!(windows_system_identity(
+            800,
+            "SVCHOST.EXE",
+            Some("c:/windows/SYSTEM32/SVCHOST.EXE"),
+            root
+        ));
+        assert!(!windows_system_identity(800, "System", None, root));
+        assert!(!windows_system_identity(
+            800,
+            "node.exe",
+            Some(r"C:\Windows\System32\node.exe"),
+            root
+        ));
+        assert!(!windows_system_identity(
+            800,
+            "svchost.exe",
+            Some(r"C:\Windows\System32\..\svchost.exe"),
+            root
+        ));
+        assert!(!windows_system_identity(0, "Unknown", None, root));
+    }
+    #[test]
     fn restricted_metadata_is_not_zero_usage() {
         assert_eq!(resource_memory(0, Some(0)), None);
         assert_eq!(resource_memory(100, Some(0)), None);
         assert_eq!(resource_memory(0, Some(1024)), Some(1024));
         assert_eq!(resource_memory(100, None), None);
-        assert!(stop_reason(4, 0, true, true).unwrap().contains("System process"));
+        assert!(stop_reason(4, 0, true, true)
+            .unwrap()
+            .contains("System process"));
         assert!(stop_reason(500, 0, true, false)
             .unwrap()
             .contains("Start time"));
@@ -494,6 +626,7 @@ mod tests {
             service: String::new(),
             confidence: String::new(),
             category: String::new(),
+            system_managed: false,
             scope: String::new(),
             can_stop: false,
             stop_reason: None,
@@ -508,6 +641,34 @@ mod tests {
         assert!(scan_warnings(&[make(4, 0)]).is_empty());
         assert!(scan_warnings(&[]).is_empty());
         assert_eq!(scan_warnings(&[make(100, 0), make(200, 0)]).len(), 1);
+        // Neither UI classification nor forged canStop can bypass backend checks.
+        for pid in [4, std::process::id()] {
+            let mut row = make(pid, 123);
+            row.can_stop = true;
+            row.system_managed = false;
+            assert!(verify(&row).is_err());
+        }
+        let mut row = make(100, 123);
+        row.can_stop = true;
+        row.system_managed = true;
+        assert!(verify(&row).is_err());
+        row.system_managed = false;
+        row.birth = 0;
+        assert!(verify(&row).is_err());
+        // Re-read real process protection rather than trusting serialized flags.
+        let mut sys = System::new_all();
+        sys.refresh_all();
+        let own = Pid::from_u32(std::process::id());
+        if let Some(parent) = sys
+            .process(own)
+            .and_then(|p| p.parent())
+            .and_then(|id| sys.process(id))
+        {
+            let mut row = make(parent.pid().as_u32(), parent.start_time());
+            row.name = parent.name().to_string_lossy().into_owned();
+            row.can_stop = true;
+            assert!(verify(&row).is_err());
+        }
     }
     #[test]
     fn service_signatures() {

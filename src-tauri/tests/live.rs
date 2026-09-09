@@ -40,6 +40,14 @@ fn probe() {
         .collect();
     let mut scanner = Scanner::default();
     let snapshot = scanner.scan().unwrap();
+    for system in snapshot.listeners.iter().filter(|l| l.system_managed) {
+        assert!(!system.can_stop);
+        assert!(system.stop_reason.is_some());
+        let mut forged = system.clone();
+        forged.can_stop = true;
+        forged.system_managed = false;
+        assert!(verify(&forged).is_err());
+    }
     let tcp = snapshot
         .listeners
         .iter()
@@ -54,6 +62,7 @@ fn probe() {
         "portwhim-live-fixture"
     );
     assert!(tcp.provenance.parent.is_some());
+    assert!(!tcp.system_managed);
     let mut wrong = tcp.clone();
     wrong.birth += 1;
     assert!(verify(&wrong).is_err());
@@ -66,6 +75,7 @@ fn probe() {
     let serialized = serde_json::to_value(tcp).unwrap();
     assert!(serialized.get("birth").is_none());
     assert!(serialized.get("command").is_none());
+    assert_eq!(serialized["systemManaged"], false);
     terminate(tcp).unwrap();
     let deadline = Instant::now() + Duration::from_secs(10);
     while scanner
