@@ -8,7 +8,7 @@ export interface Listener {
   id: string; pid: number; name: string; port: number; protocol: 'TCP'|'UDP'; address: string;
   started: string|null; cpu: number|null; memory: number|null;
   service: string; confidence: 'process'|'port hint'|'unknown'; category: 'app'|'database'|'container'|'system';
-  scope: 'loopback'|'all interfaces'|'network'; canStop: boolean; provenance:Provenance;
+  scope: 'loopback'|'all interfaces'|'network'; canStop: boolean; stopReason:string|null; provenance:Provenance;
 }
 export interface Snapshot { listeners: Listener[]; scannedAt: string; hostname: string; platform: string; warnings: string[]; }
 export interface PortwhimAPI {

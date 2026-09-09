@@ -44,6 +44,7 @@ pub struct Listener {
     pub category: String,
     pub scope: String,
     pub can_stop: bool,
+    pub stop_reason: Option<String>,
     pub provenance: Provenance,
     #[serde(skip)]
     pub birth: u64,
@@ -67,6 +68,32 @@ pub fn scope(address: &str) -> String {
         "network"
     }
     .into()
+}
+fn stop_reason(pid: u32, birth: u64, present: bool, is_protected: bool) -> Option<String> {
+    if pid > 0 && pid <= 4 {
+        Some("系统进程：为避免影响 Windows 或系统运行，不允许在此停止。".into())
+    } else if pid == 0 || !present {
+        Some("无法确认端口所属进程：进程可能已退出，或系统未提供进程信息，请刷新后重试。".into())
+    } else if is_protected {
+        Some("应用保护：不能停止 Portwhim 自身、其子进程或启动它的父进程。".into())
+    } else if birth == 0 {
+        Some("系统未提供此进程的启动时间，通常与访问权限有关。无法核实身份，因此禁用停止；不影响其他进程。".into())
+    } else {
+        None
+    }
+}
+fn resource_memory(_birth: u64, memory: Option<u64>) -> Option<u64> {
+    // sysinfo uses zero when Windows cannot query the process; this is not a measurement.
+    memory.filter(|value| *value != 0)
+}
+fn scan_warnings(listeners: &[Listener]) -> Vec<String> {
+    if listeners.iter().any(|l| l.pid > 4)
+        && listeners.iter().filter(|l| l.pid > 4).all(|l| l.birth == 0)
+    {
+        vec!["端口扫描成功，但本次无法核实任何普通进程的启动时间。进程详情可能受权限限制，停止操作已禁用。".into()]
+    } else {
+        Vec::new()
+    }
 }
 pub fn detect(name: &str, command: &str, port: u16) -> (String, String, String) {
     let text = format!("{name} {command}").to_lowercase();
@@ -358,7 +385,7 @@ impl Scanner {
                     } else {
                         None
                     },
-                    cpu: if self.sampled {
+                    cpu: if self.sampled && birth > 0 {
                         p.map(|p| {
                             p.cpu_usage()
                                 / std::thread::available_parallelism()
@@ -368,12 +395,13 @@ impl Scanner {
                     } else {
                         None
                     },
-                    memory: p.map(|p| p.memory()),
+                    memory: resource_memory(birth, p.map(|p| p.memory())),
                     service,
                     confidence,
                     category,
                     scope: scope(&address),
                     can_stop: birth > 0 && !protected(id, &self.sys),
+                    stop_reason: stop_reason(pid, birth, p.is_some(), protected(id, &self.sys)),
                     provenance: origin,
                     birth,
                 });
@@ -381,10 +409,7 @@ impl Scanner {
         }
         self.sampled = true;
         listeners.sort_by_key(|l| (l.port, l.pid));
-        let mut warnings = Vec::new();
-        if listeners.iter().any(|l| l.birth == 0) {
-            warnings.push("Some process details are unavailable. Protected or unidentified processes cannot be stopped.".into())
-        }
+        let warnings = scan_warnings(&listeners);
         Ok(Snapshot {
             listeners,
             scanned_at: chrono::Utc::now().to_rfc3339(),
@@ -435,6 +460,55 @@ pub fn terminate(row: &Listener) -> Result<(), String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn restricted_metadata_is_not_zero_usage() {
+        assert_eq!(resource_memory(0, Some(0)), None);
+        assert_eq!(resource_memory(100, Some(0)), None);
+        assert_eq!(resource_memory(0, Some(1024)), Some(1024));
+        assert_eq!(resource_memory(100, None), None);
+        assert!(stop_reason(4, 0, true, true).unwrap().contains("系统进程"));
+        assert!(stop_reason(500, 0, true, false)
+            .unwrap()
+            .contains("启动时间"));
+        assert!(stop_reason(500, 100, true, true)
+            .unwrap()
+            .contains("应用保护"));
+        assert!(stop_reason(500, 0, false, false)
+            .unwrap()
+            .contains("无法确认"));
+        assert!(stop_reason(500, 100, true, false).is_none());
+    }
+    #[test]
+    fn one_restricted_process_does_not_warn_for_the_entire_scan() {
+        let make = |pid, birth| Listener {
+            id: String::new(),
+            pid,
+            birth,
+            name: String::new(),
+            port: 80,
+            protocol: "TCP".into(),
+            address: "127.0.0.1".into(),
+            started: None,
+            cpu: None,
+            memory: None,
+            service: String::new(),
+            confidence: String::new(),
+            category: String::new(),
+            scope: String::new(),
+            can_stop: false,
+            stop_reason: None,
+            provenance: Provenance {
+                project: None,
+                parent: None,
+                ancestors: vec![],
+                source: None,
+            },
+        };
+        assert!(scan_warnings(&[make(4, 0), make(100, 123), make(200, 0)]).is_empty());
+        assert!(scan_warnings(&[make(4, 0)]).is_empty());
+        assert!(scan_warnings(&[]).is_empty());
+        assert_eq!(scan_warnings(&[make(100, 0), make(200, 0)]).len(), 1);
+    }
     #[test]
     fn service_signatures() {
         assert_eq!(
