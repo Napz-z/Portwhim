@@ -6,7 +6,20 @@ export function resetFilters(): Filters { return { query: '', protocol: 'all', f
 export function hasFilters(state: Filters): boolean {
   return state.query !== '' || state.protocol !== 'all' || state.filter !== 'all';
 }
-export function identity(l: Listener): string { return `${l.pid}:${l.protocol}:${l.address}:${l.port}`; }
+export function identity(l: Listener): string { return `${l.pid}:${l.started ?? 'unknown'}:${l.protocol}:${l.address}:${l.port}`; }
+export function sameProcess(a: Pick<Listener, 'pid'|'started'>, b: Pick<Listener, 'pid'|'started'>): boolean {
+  return a.pid === b.pid && a.started === b.started;
+}
+export function stopFeedback(target: Listener, listeners: Listener[]): { complete: boolean; message: string } {
+  if (listeners.some(l => sameProcess(l, target))) {
+    return { complete: false, message: `Stop sent, but PID ${target.pid} is still running. Refresh and try again if needed.` };
+  }
+  const replacement = listeners.find(l => l.protocol === target.protocol && l.port === target.port);
+  if (replacement) {
+    return { complete: true, message: `${target.service} no longer appears, but :${target.port} is now used by ${replacement.name} (PID ${replacement.pid}).` };
+  }
+  return { complete: true, message: `:${target.port} is now free · ${target.service} no longer appears in the listener scan.` };
+}
 export function inspectLabel(l: Listener): string {
   return `Inspect ${l.name}, PID ${l.pid}, ${l.protocol} port ${l.port} at ${l.address}`;
 }

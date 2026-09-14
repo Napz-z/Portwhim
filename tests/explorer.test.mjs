@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { clearSearch, resetFilters, hasFilters, socketGroups, visibleGroups, sortListeners, openTarget, inspectLabel } from '../src/explorer.ts';
+import { clearSearch, resetFilters, hasFilters, identity, socketGroups, visibleGroups, sortListeners, openTarget, inspectLabel, sameProcess, stopFeedback } from '../src/explorer.ts';
 
 test('Clear search preserves ownership and protocol; reset restores All listeners', () => {
   const active = { query: 'no matches', protocol: 'UDP', filter: 'system' };
@@ -39,6 +39,24 @@ test('port ordering ignores memory changes, including ties; memory sort is expli
   assert.equal(sortListeners(rows, 'memory')[0], row);
   assert.equal(rows[0], row);
   assert.match(inspectLabel(row), /PID 100, TCP port 80 at 127.0.0.1/);
+});
+test('stop feedback distinguishes a running target, a freed port, and a replacement owner', () => {
+  const target = { ...row, service: 'Vite', started: '2026-09-14T01:00:00Z' };
+  assert.equal(sameProcess(target, { ...target }), true);
+  assert.equal(sameProcess(target, { ...target, started: '2026-09-14T01:01:00Z' }), false);
+  assert.notEqual(identity(target), identity({ ...target, started: '2026-09-14T01:01:00Z' }));
+  assert.deepEqual(stopFeedback(target, [{ ...target, address: '::1' }]), {
+    complete: false,
+    message: 'Stop sent, but PID 100 is still running. Refresh and try again if needed.'
+  });
+  assert.deepEqual(stopFeedback(target, []), {
+    complete: true,
+    message: ':80 is now free · Vite no longer appears in the listener scan.'
+  });
+  assert.deepEqual(stopFeedback(target, [{ ...target, pid: 101, name: 'replacement', started: '2026-09-14T01:02:00Z' }]), {
+    complete: true,
+    message: 'Vite no longer appears, but :80 is now used by replacement (PID 101).'
+  });
 });
 for (const c of JSON.parse(readFileSync(new URL('./open-cases.json', import.meta.url), 'utf8'))) {
   test(`browser policy: ${c.name}`, () => assert.deepEqual(openTarget(c.row), { url: c.url, reason: c.reason }));

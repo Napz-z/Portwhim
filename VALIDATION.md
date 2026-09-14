@@ -1,3 +1,11 @@
+# Stop feedback and first-scan states — 2026-09-14
+
+Windows x64. TypeScript checking and the Vite production build passed. Twenty-nine frontend tests passed, including target-process identity, recycled-PID separation, port release, replacement ownership and still-listening stop outcomes. Seven Rust unit tests passed. The owned TCP/UDP fixture integration test passed outside the restricted sandbox: native discovery, identity checks, termination and socket disappearance all completed without touching an unrelated process.
+
+The disconnected desktop-bridge state was visually checked in the local frontend at a narrow viewport and remained readable without the former duplicate notice. The actual first-scan backend-error branch and post-stop toast timing were not automated visually; their state selection and message outcomes are covered by production type checking and frontend tests. Native stop confirmation appearance remains outside automated UI coverage.
+
+---
+
 # Tauri migration verification — 2026-09-09
 
 Windows x64, Rust 1.98.1, Tauri 2.11.5, shared WebView2 152. Electron runtime, dependencies, entry points and JavaScript native providers have been removed from the active build. Approved brand assets are unchanged.

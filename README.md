@@ -13,7 +13,8 @@ A local port and process inspector. **Tauri 2 · Rust · React · TypeScript · 
 - Protocol/category filters, port/memory sorting, process cards and related sockets.
 - Inferred project ownership, evidence, parent process and bounded ancestry.
 - Clipboard, localhost opening and native-confirmed process termination with identity checks.
-- Five-second refresh, pause, manual refresh, errors and unavailable metadata.
+- Post-stop rescans that report whether the selected port is free, still occupied or still attached to the target process.
+- Five-second refresh, pause, manual refresh, truthful first-scan failures and unavailable metadata.
 - Local only: no account, telemetry or cloud backend. Raw command lines remain in Rust.
 
 ## Development
