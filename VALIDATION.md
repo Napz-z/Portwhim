@@ -61,3 +61,9 @@ Release UI verification: no global warning for the mixed-access scan; 123 restri
 - Rust: 8 tests passed, including absolute existing directory validation and rejection of missing paths/files/relative paths.
 - Folder opening uses the native opener with a backend-selected, canonicalized directory; clipboard copies the backend-selected project path. Native file-manager launch and clipboard interaction have not been manually exercised in this run.
 - Change summaries compare successful scans only, establish the baseline silently, retain only the latest change batch in memory, and can be dismissed. They are sampled observations, not a complete history.
+
+## 2026-09-15: Dark change notice and Windows icon
+
+- Replaced light notification surface with explicit dark background and text colors; body text contrast is 11.78:1.
+- Tauri codegen 2.6.3 reads ICO entry zero as its window icon. Reordered existing frames from largest to smallest so the 256px frame replaces the previously selected 16px frame. All seven frames decode and their payload hashes match the original; brand geometry is unchanged.
+- Production build includes the corrected style and window icon. Actual Windows taskbar rendering remains to be confirmed after reopening the updated executable.
