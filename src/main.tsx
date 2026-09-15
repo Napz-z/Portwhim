@@ -1,17 +1,16 @@
 import './native';
 import { clearSearch, resetFilters, hasFilters, identity, inspectLabel, sortListeners, openTarget } from './explorer';
 import { ProcessCard } from './ProcessCard';
+import { ProcessInspector } from './ProcessInspector';
 import { matchesOwnership, systemBadge, canRequestStop } from './process-policy';
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Activity, ArrowDownUp, ArrowUpRight, Boxes, Check, ChevronRight, CircleHelp, Copy, Database, Globe, LayoutGrid, List, LoaderCircle, Monitor, Network, Pause, Play, Search, Square, Terminal, X } from 'lucide-react';
+import { Activity, ArrowDownUp, Boxes, Check, ChevronRight, CircleHelp, Database, Globe, LayoutGrid, List, LoaderCircle, Monitor, Network, Pause, Play, Search, Terminal, X } from 'lucide-react';
 import type { Listener, Snapshot } from './shared';
 import './style.css';
 import './brand.css';
 
 const memory=(v:number|null)=>v===null?'—':v<1048576?`${(v/1024).toFixed(0)} KB`:`${(v/1048576).toFixed(1)} MB`;
-const cpu=(v:number|null)=>v===null?'—':`${v.toFixed(1)}%`;
-const time=(v:string|null)=>v?new Date(v).toLocaleString():'Unavailable';
 const icon=(l:Listener)=>l.category==='database'?<Database size={18}/>:l.category==='container'?<Boxes size={18}/>:<Terminal size={18}/>;
 const SystemBadge=({listener}:{listener:Listener})=>systemBadge(listener)?<span className="system-badge">{systemBadge(listener)}</span>:null;
 function App(){
@@ -33,8 +32,6 @@ function App(){
   const row=all.find(l=>identity(l)===selected);
   const filters={query,protocol,filter};
   const applyFilters=(next:typeof filters)=>{setQuery(next.query);setProtocol(next.protocol);setFilter(next.filter);};
-  const target=row?openTarget(row):null;
-  const bindings=row?all.filter(l=>l.pid===row.pid&&l.port===row.port&&l.protocol===row.protocol):[];
   const processes=[...new Map(all.map(l=>[l.pid,l])).values()];
   const knownMemory=processes.filter(l=>l.memory!==null);
   const groups=[...new Map(rows.map(l=>[l.pid,rows.filter(r=>r.pid===l.pid)])).entries()];
@@ -80,7 +77,7 @@ function App(){
         <div className="bottom-note"><span><span className="dot"/> Your ports stay on your machine.</span><span>Built for the things you’re building.</span></div>
       </div>
     </main>
-    {row&&<><div className="drawer-shade" onClick={()=>setSelected('')}/><aside className="drawer" aria-label="Process details"><div className="drawer-top"><span>PROCESS INSPECTOR</span><button className="icon-button" aria-label="Close details" onClick={()=>setSelected('')}><X size={19}/></button></div><span className={`service-icon large ${row.category}`}>{icon(row)}</span><h2>{row.service}</h2><SystemBadge listener={row}/><p className="detail-sub">{row.name} <span className="protocol">{row.protocol}</span></p><div className="detail-port">:{row.port}<button className="icon-button" title="Copy port" onClick={()=>void action('copy',row)}><Copy size={17}/></button></div><div className="detail-actions"><button className="primary" disabled={acting||!target?.url} aria-describedby="open-reason" onClick={()=>void action('open',row)}>Open localhost <ArrowUpRight size={16}/></button><button className="secondary" onClick={()=>void action('copy',row,'pid')}><Copy size={15}/> PID</button></div><p className="open-reason" id="open-reason">{target?.reason||'HTTP/HTTPS candidate inferred from service or port; availability is not verified.'}</p><section className="bindings"><h3>Bindings for :{row.port} · {row.protocol}</h3><div>{bindings.map(l=><button key={identity(l)} aria-label={`Inspect binding ${l.address}, ${l.protocol} port ${l.port}`} aria-pressed={identity(l)===selected} onClick={()=>setSelected(identity(l))}>{l.address}<small>{l.scope}</small></button>)}</div></section><section className="provenance"><h3>Project & launch origin</h3><dl><div><dt>Project (inferred)</dt><dd>{row.provenance.project?.name||'Unknown'}</dd></div><div><dt>Project directory</dt><dd>{row.provenance.project?.directory||'Unavailable'}</dd></div><div><dt>Evidence</dt><dd>{row.provenance.project?.evidence||'No accessible project marker found in available paths.'}</dd></div><div><dt>Launch source</dt><dd>{row.provenance.source||'Unknown'}</dd></div><div><dt>Parent process</dt><dd>{row.provenance.parent?row.provenance.parent.name+' · PID '+row.provenance.parent.pid:'Unavailable or exited'}</dd></div></dl>{row.provenance.ancestors.length>0&&<><h3>Parent chain · nearest first</h3><ol>{row.provenance.ancestors.map(p=><li key={p.pid}>{p.name} <small>PID {p.pid}</small></li>)}</ol></>}<p>Project ownership is inferred from local paths. Launch source describes observed ancestors, not a complete launch history.</p></section><dl>{[['Process ID',row.pid],['Bind address',row.address],['Scope',row.scope],['Started',time(row.started)],['CPU',cpu(row.cpu)],['Memory (RSS)',memory(row.memory)],['Recognition',row.confidence==='process'?'Process / command signature':row.confidence==='port hint'?'Port hint · not verified':'No known signature']].map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><div className="related"><h3>Other sockets in this process</h3><div>{all.filter(l=>l.pid===row.pid&&(l.port!==row.port||l.protocol!==row.protocol)).map(l=><button key={identity(l)} aria-label={inspectLabel(l)} onClick={()=>setSelected(identity(l))}>:{l.port} <small>{l.protocol} · {l.address}</small></button>)}{all.filter(l=>l.pid===row.pid&&(l.port!==row.port||l.protocol!==row.protocol)).length===0&&<p>No other sockets.</p>}</div></div><div className="stop-area"><p>Stopping a process closes all of its ports.</p><button className="danger" disabled={!canRequestStop(row)||acting} onClick={()=>void action('stop',row)}><Square size={14}/> Stop process</button>{!canRequestStop(row)&&<small>{row.stopReason||'Process identity could not be verified. Stopping is disabled.'}</small>}</div></aside></>}
+    {row&&<ProcessInspector row={row} all={all} selected={selected} acting={acting} close={()=>setSelected('')} select={setSelected} action={action}/>}
     {help&&<div className="modal-shade" onClick={()=>setHelp(false)}><section className="help" role="dialog" aria-modal="true" aria-label="About Portwhim" onClick={e=>e.stopPropagation()}><button className="icon-button close" aria-label="Close about" onClick={()=>setHelp(false)}><X size={18}/></button><Network size={32}/><h2>Small tool. Clearer localhost.</h2><p>Portwhim 0.1.0 reads local socket and process metadata. No account, telemetry, or remote scanning.</p><p><kbd>Ctrl / ⌘ K</kbd> Search · <kbd>Esc</kbd> Close inspector</p><p>UDP entries are bound sockets, not TCP-style listeners. Port hints are suggestions, not verified service identities. Network-bound sockets may not serve HTTP on localhost.</p><p>CPU and memory are per process, shared by all its sockets. Missing OS metadata appears as —. Stop affects the whole process and asks for confirmation.</p></section></div>}
     {toast&&<div className="toast" role="status"><Check size={16}/>{toast}</div>}
   </div>;
