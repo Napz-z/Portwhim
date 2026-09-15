@@ -4,7 +4,7 @@ import type { Listener } from './shared';
 import { canRequestStop, systemBadge } from './process-policy';
 import { identity, inspectLabel, openTarget } from './explorer';
 
-type Action = (type: 'copy'|'open'|'stop', listener: Listener, field?: 'pid'|'port') => Promise<void>;
+type Action = (type: 'copy'|'open'|'stop'|'project', listener: Listener, field?: 'pid'|'port'|'projectPath') => Promise<void>;
 
 const memory = (value: number|null) => value === null ? '—' : value < 1048576 ? `${(value / 1024).toFixed(0)} KB` : `${(value / 1048576).toFixed(1)} MB`;
 const cpu = (value: number|null) => value === null ? '—' : `${value.toFixed(1)}%`;
@@ -59,7 +59,7 @@ export function ProcessInspector({ row, all, selected, acting, close, select, ac
               <h3>Project & launch origin</h3>
               <dl>
                 <div><dt>Project (inferred)</dt><dd>{row.provenance.project?.name || 'Unknown'}</dd></div>
-                <div><dt>Project directory</dt><dd>{row.provenance.project?.directory || 'Unavailable'}</dd></div>
+                <div><dt>Project directory</dt><dd>{row.provenance.project?.directory || 'Unavailable'}{row.provenance.project && <div className="project-actions"><button className="secondary" disabled={acting} onClick={() => action('project', row)}>Open folder <ArrowUpRight size={14}/></button><button className="secondary" disabled={acting} onClick={() => action('copy', row, 'projectPath')}><Copy size={14}/> Copy path</button></div>}</dd></div>
                 <div><dt>Evidence</dt><dd>{row.provenance.project?.evidence || 'No accessible project marker found in available paths.'}</dd></div>
                 <div><dt>Launch source</dt><dd>{row.provenance.source || 'Unknown'}</dd></div>
                 <div><dt>Parent process</dt><dd>{row.provenance.parent ? `${row.provenance.parent.name} · PID ${row.provenance.parent.pid}` : 'Unavailable or exited'}</dd></div>

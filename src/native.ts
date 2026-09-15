@@ -3,6 +3,7 @@ import type { Snapshot } from './shared';
 if (isTauri()) window.portwhim = {
   scan: () => invoke<Snapshot>('scan'),
   copy: (id, field) => invoke('copy', { id, field }),
+  openProject: id => invoke('open_project', { id }),
   open: id => invoke('open', { id }),
   stop: id => invoke('stop', { id })
 };

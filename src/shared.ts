@@ -14,7 +14,8 @@ export interface Snapshot { listeners: Listener[]; scannedAt: string; hostname: 
 export interface PortwhimAPI {
   scan(): Promise<Snapshot>;
   open(id: string): Promise<void>;
-  copy(id: string, field:'pid'|'port'): Promise<void>;
+  openProject(id: string): Promise<void>;
+  copy(id: string, field:'pid'|'port'|'projectPath'): Promise<void>;
   stop(id: string): Promise<{cancelled?:boolean; message?:string}>;
 }
 declare global { interface Window { portwhim?: PortwhimAPI } }

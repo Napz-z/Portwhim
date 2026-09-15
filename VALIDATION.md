@@ -53,3 +53,11 @@ The local Windows bundle is unsigned. Its Electron runtime was downloaded from a
 
 A read-only Windows scan reproduced missing start times and zero-valued memory from sysinfo for System, service hosts and several background services. Partial restrictions now appear as a per-process stopReason instead of a blanket warning. Whole-scan identity failure still produces a warning. Zero RSS is conservatively treated as unavailable because this provider uses zero for failed reads; CPU is unavailable when identity metadata is absent. Missing values are excluded from measured-process counts. Five unit tests and the owned TCP/UDP integration test passed, along with frontend type checking. Stop identity checks remain enforced. This does not grant access to OS-restricted processes.
 Release UI verification: no global warning for the mixed-access scan; 123 restricted socket rows had null memory and all disabled stop actions had a reason. The port 135 inspector displayed the specific startup-time limitation. NSIS installer rebuilt successfully.
+
+## 2026-09-15: Exact ports, project actions, port changes
+
+- TypeScript check and Vite production build passed.
+- Frontend: 31 tests passed, including exact search versus PID/path/partial matches, malformed and out-of-range ports, text search, owner replacement, TCP/UDP separation and duplicate-address/resource-change suppression.
+- Rust: 8 tests passed, including absolute existing directory validation and rejection of missing paths/files/relative paths.
+- Folder opening uses the native opener with a backend-selected, canonicalized directory; clipboard copies the backend-selected project path. Native file-manager launch and clipboard interaction have not been manually exercised in this run.
+- Change summaries compare successful scans only, establish the baseline silently, retain only the latest change batch in memory, and can be dismissed. They are sampled observations, not a complete history.

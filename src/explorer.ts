@@ -59,3 +59,36 @@ export function openTarget(l: Pick<Listener, 'protocol'|'port'|'address'|'catego
   const host = l.address.includes(':') ? '[::1]' : l.address === '0.0.0.0' ? '127.0.0.1' : l.address;
   return { url: `${scheme}://${host}:${l.port}`, reason: null };
 }
+
+export function portQuery(query: string): { port: number|null; error: string|null } {
+  const q = query.trim();
+  if (!/^\d+$/.test(q) && !/^(?:port:|:)/i.test(q)) return { port: null, error: null };
+  const value = q.replace(/^(?:port:|:)\s*/i, '');
+  if (!/^\d+$/.test(value) || Number(value) < 1 || Number(value) > 65535) return { port: null, error: 'Enter a port from 1 to 65535.' };
+  return { port: Number(value), error: null };
+}
+export function matchesQuery(l: Listener, query: string): boolean {
+  const parsed = portQuery(query);
+  if (parsed.error) return false;
+  if (parsed.port !== null) return l.port === parsed.port;
+  return `${l.port} ${l.pid} ${l.name} ${l.service} ${l.address} ${l.provenance.project?.name || ''} ${l.provenance.project?.directory || ''}`.toLowerCase().includes(query.trim().toLowerCase());
+}
+export function portChanges(before: Listener[], after: Listener[]): string[] {
+  const group = (rows: Listener[]) => {
+    const map = new Map<string, Listener[]>();
+    for (const l of rows) { const key = `${l.protocol} :${l.port}`; map.set(key, [...(map.get(key) || []), l]); }
+    return map;
+  };
+  const old = group(before), next = group(after), changes: string[] = [];
+  const owners = (rows: Listener[]) => [...new Set(rows.map(l => `${l.pid}:${l.started ?? 'unknown'}`))].sort().join(',');
+  for (const [key, rows] of next) {
+    const previous = old.get(key);
+    if (!previous) changes.push(`${key} appeared`);
+    else if (owners(previous) !== owners(rows)) {
+      const names = [...new Set(rows.map(l => `${l.name} (PID ${l.pid})`))];
+      changes.push(`${key} owner changed → ${names.slice(0, 2).join(', ')}${names.length > 2 ? ` +${names.length - 2} more` : ''}`);
+    }
+  }
+  for (const key of old.keys()) if (!next.has(key)) changes.push(`${key} no longer observed`);
+  return changes;
+}

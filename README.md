@@ -48,3 +48,5 @@ Windows is the primary validation platform. macOS/Linux adapters and CI are pres
 - src-tauri/src/lib.rs: validated native commands and dialogs.
 - src-tauri/tests/: real process integration test.
 - public/brand/: approved brand assets.
+
+Exact port queries accept `3000`, `:3000`, or `port:3000` (1–65535); text remains fuzzy and existing filters apply. Project details offer Open folder and Copy path when identified. A dismissible summary reports the latest batch of observed port arrivals, disappearances, and owner changes after the first scan; no history or system notifications. Changes between scans may be missed.

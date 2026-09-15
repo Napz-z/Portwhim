@@ -44,6 +44,7 @@ fn copy(
     let value = match field.as_str() {
         "pid" => row.pid.to_string(),
         "port" => row.port.to_string(),
+        "projectPath" => row.provenance.project.as_ref().ok_or("No project directory was identified.")?.directory.clone(),
         _ => return Err("Invalid field".into()),
     };
     app.clipboard().write_text(value).map_err(|e| e.to_string())
@@ -55,6 +56,20 @@ fn open(app: tauri::AppHandle, state: State<'_, Store>, id: String) -> Result<()
     app.opener()
         .open_url(url, None::<&str>)
         .map_err(|e| e.to_string())
+}
+fn existing_directory(directory: &str) -> Result<std::path::PathBuf, String> {
+    let path = std::path::Path::new(directory);
+    if !path.is_absolute() { return Err("Project directory must be an absolute path.".into()); }
+    let path = path.canonicalize().map_err(|_| "Project directory is unavailable or no longer exists.".to_string())?;
+    if !path.is_dir() { return Err("Project path is no longer a directory.".into()); }
+    Ok(path)
+}
+#[tauri::command]
+fn open_project(app: tauri::AppHandle, state: State<'_, Store>, id: String) -> Result<(), String> {
+    let row = selected(&state, &id)?;
+    let project = row.provenance.project.as_ref().ok_or("No project directory was identified.")?;
+    let path = existing_directory(&project.directory)?;
+    app.opener().open_path(path.to_string_lossy(), None::<&str>).map_err(|e| e.to_string())
 }
 #[tauri::command]
 async fn stop(
@@ -90,7 +105,20 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_opener::init())
         .manage(Store::default())
-        .invoke_handler(tauri::generate_handler![scan, copy, open, stop])
+        .invoke_handler(tauri::generate_handler![scan, copy, open, open_project, stop])
         .run(tauri::generate_context!())
         .expect("Failed to run Portwhim");
+}
+
+#[cfg(test)]
+mod project_tests {
+    use super::existing_directory;
+    #[test]
+    fn project_directory_must_be_existing_absolute_directory() {
+        assert!(existing_directory("relative/path").is_err());
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+        assert!(existing_directory(root.to_str().unwrap()).is_ok());
+        assert!(existing_directory(root.join("Cargo.toml").to_str().unwrap()).is_err());
+        assert!(existing_directory(root.join("missing-project-directory").to_str().unwrap()).is_err());
+    }
 }
