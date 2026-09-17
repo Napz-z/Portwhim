@@ -1,52 +1,172 @@
-# Portwhim
+<div align="center">
+  <img src="public/brand/mark.svg" width="88" alt="Portwhim logo" />
+  <h1>Portwhim</h1>
+  <p><strong>Find the port. Find the project. Get back to building.</strong></p>
+  <p>A desktop workspace for the services running on your machine.</p>
+  <p><a href="README.zh-CN.md">简体中文</a> · <a href="#get-started">Get started</a> · <a href="#everyday-workflows">Usage</a> · <a href="#contribute">Contribute</a></p>
+</div>
 
-<img src="public/brand/mark.svg" width="88" alt="Portwhim logo" />
+Your dev server says `EADDRINUSE`. Several processes are called `node`. One belongs to today's project; another might be yesterday's forgotten server. Which one should you stop?
 
-A local port and process inspector. **Tauri 2 · Rust · React · TypeScript · MIT**
+**Portwhim connects local ports to their processes and, when identifiable, their projects.** Inspect the owner, open its project folder, see its other ports, and confirm a stop without piecing together several terminal commands.
 
-[中文说明](README.zh-CN.md)
+Built with **Tauri 2 · Rust · React · TypeScript**. Local only, no account or telemetry. [MIT licensed](LICENSE).
 
-## Features
+## When is it useful?
 
-- TCP listeners and UDP bindings, IPv4/IPv6, process identity and resource usage.
-- Search by port, PID, process, service, address, project name or project directory.
-- Protocol/category filters, port/memory sorting, process cards and related sockets.
-- Inferred project ownership, evidence, parent process and bounded ancestry.
-- Clipboard, localhost opening and native-confirmed process termination with identity checks.
-- Post-stop rescans that report whether the selected port is free, still occupied or still attached to the target process.
-- Five-second refresh, pause, manual refresh, truthful first-scan failures and unavailable metadata.
-- Local only: no account, telemetry or cloud backend. Raw command lines remain in Rust.
+| When this happens… | Use Portwhim to… |
+| --- | --- |
+| “Port 3000 is already in use.” | Find the exact port, inspect its owner, stop the unwanted process and check the result. |
+| You have several repos and dev servers open. | Search by project name or directory and jump to the identified project folder. |
+| You cannot tell which `node` or `python` process is yours. | Check service recognition, project evidence, start time and the visible parent chain. |
+| You suspect an old development server is still running. | Filter **Dev services**, sort by memory and inspect the process before deciding what to close. |
+| A service keeps reappearing after you stop it. | Look for a changed owner in the scan summary and inspect its visible launch ancestry. |
+| You want to check a server's bind address. | See loopback, all-interface and network bindings together, with IPv4 and IPv6 details. |
 
-## Development
+## Why Portwhim?
 
-Install Node 24, pnpm 11 and stable Rust. On Windows also install Microsoft C++ Build Tools and WebView2. See https://v2.tauri.app/start/prerequisites/ for other platforms.
+### Context beyond a PID
+
+A process name alone often does not tell you which repo to return to. Portwhim looks for project markers in accessible local paths and shows the inferred project, directory and supporting evidence. **Open folder** and **Copy path** take that context into your next step.
+
+### Inspect, act, check the result
+
+Before stopping, see the process's other sockets and resource details. Portwhim checks process identity and asks for native confirmation, then rescans to report whether the target is still observed, the port has disappeared from the scan, or another process now owns it.
+
+### A view you can keep open while developing
+
+Exact port search, project search, combined filters, process cards and five-second refresh make it useful across several services. A dismissible summary highlights the latest observed port arrivals, disappearances and owner changes.
+
+### Local data, a shared system webview
+
+Scans and project recognition run locally in Rust. Raw command lines stay out of the interface. The desktop app uses Tauri and the system webview; running a built app does not require Node.js or a Rust toolchain.
+
+### How it fits alongside your existing tools
+
+| Tool or workflow | Where it fits | What Portwhim brings |
+| --- | --- | --- |
+| `netstat`, `ss`, `lsof` | Terminal diagnostics and scripts | A browsable port → process → project workflow |
+| Task managers | Whole-machine process and resource inspection | A starting point at the port that is blocking your work |
+| Port-killing commands | Quickly stopping a known target | Context before stopping and scan feedback afterwards |
+
+These are workflow comparisons, not claims that Portwhim is faster or more capable in every situation. Its focus is interactive local development; it does not provide a scripting CLI, packet capture or remote-host management.
+
+## Get started
+
+### Run a built app
+
+If you have a Windows installer produced from this project, install it and launch **Portwhim**. No development tools are needed. Windows requires WebView2; the installer downloads it if missing, so offline machines need it installed beforehand.
+
+This repository currently documents source builds and does not provide a public release download link. Windows is the primary validated platform; macOS/Linux adapters and CI configuration are present, with native validation still needed. See [validation records](VALIDATION.md) for tested scope and Windows signing status.
+
+### Run from source
+
+Install **Node.js 24**, **pnpm 11**, **stable Rust**, and the [Tauri prerequisites for your OS](https://v2.tauri.app/start/prerequisites/). Windows builds need Microsoft C++ Build Tools and WebView2; macOS needs Xcode Command Line Tools; Linux needs its native development dependencies.
+
+Download or clone this repository, open a terminal in its root directory, then run:
 
 ```sh
 pnpm install
 pnpm dev
-pnpm build       # type check and build the frontend
-pnpm test        # Rust unit tests
-pnpm test:live   # owned TCP/UDP fixture integration test
-pnpm run pack   # production executable without installer
-pnpm dist       # platform installers
 ```
 
-Production files are under src-tauri/target/release; installers are under its bundle directory. Windows uses the shared WebView2 runtime. If missing, the installer downloads it, requiring internet access. Node and Rust are development dependencies and are not bundled with the application.
+Use the desktop window that opens. An ordinary browser tab cannot access the native scanner. The first build can take longer while Rust dependencies compile.
 
-## Interpretation and limitations
+To build a standalone desktop executable and run it:
 
-Project ownership is inferred from accessible working directories or absolute command arguments and project markers. Unknown stays unknown. Parent chains reflect current visible processes, not historical launch records. CPU sampling differs from the former provider; the first sample is unavailable. Memory is per-process RSS and must not be added repeatedly across sockets.
+```sh
+pnpm run pack
+pnpm start
+```
 
-Stop affects the whole process and all its ports. Windows terminates immediately; Unix sends SIGTERM without force escalation. Protected processes and unverifiable identities cannot be stopped. Network bindings do not prove internet exposure. Open localhost uses HTTP and may not work for databases, HTTPS or LAN-only bindings.
+## Everyday workflows
 
-Windows is the primary validation platform. macOS/Linux adapters and CI are present but require native platform validation. Historical screenshots in docs/ predate this migration. See VALIDATION.md for measured results.
+### Free up port 3000
 
-## Source map
+1. Open **All listeners** and press `Ctrl+K` / `⌘K`.
+2. Enter `3000`, `:3000` or `port:3000` to match that port exactly.
+3. Click a result to inspect its process, project, start time and other sockets.
+4. If you recognize it as a process you no longer need, choose **Stop process** and confirm.
+5. Read the follow-up scan result before restarting your server.
 
-- src/: React interface and typed Tauri bridge.
-- src-tauri/src/scanner.rs: socket/process collection, recognition, project attribution and identity checks.
-- src-tauri/src/lib.rs: validated native commands and dialogs.
-- src-tauri/tests/: real process integration test.
-- public/brand/: approved brand assets.
+Stopping ends the **whole process**, affecting all its ports and potentially unsaved work. Windows terminates immediately; Unix sends `SIGTERM` without force escalation. System-managed, protected and unverifiable processes cannot be stopped. If a supervisor restarts it, stop it through the tool that manages it.
 
-Exact port queries accept `3000`, `:3000`, or `port:3000` (1–65535); text remains fuzzy and existing filters apply. Project details offer Open folder and Copy path when identified. A dismissible summary reports the latest batch of observed port arrivals, disappearances, and owner changes after the first scan; no history or system notifications. Changes between scans may be missed.
+### Find the project behind a service
+
+Search for a project name, directory, service or process name. Open **Project & launch origin** in the inspector to see the inferred directory, evidence and parent chain. Choose **Open folder** to return to the project or **Copy path** to share the location.
+
+Project attribution is inferred from available paths and markers such as `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `composer.json` or `.git`. Missing evidence remains **Unknown**. The parent chain describes currently visible processes, not a complete launch history.
+
+### Review services at a glance
+
+| Control | Use it for |
+| --- | --- |
+| **Dev services** | Recognized development services, excluding system-managed processes |
+| **System managed** | Processes classified as managed by the operating system |
+| **Network bound** | Non-loopback bindings; this does not prove public internet access |
+| **TCP / UDP** | Protocol filtering, combined with search and the selected category |
+| **Port / Memory** | Ascending port or descending process RSS order |
+| **Process map** | Cards grouping a process's ports and address bindings |
+| **Refresh / Pause** | Manual scans or control of the five-second refresh cycle |
+
+Click a port or PID to copy it; press `Esc` to close details. Text searches are fuzzy, but an all-digit query is always an exact port query, not a PID query. Active filters still apply.
+
+**Open localhost** is available for eligible TCP bindings with a recognized web-service signature or supported web port. It selects HTTP/HTTPS and a loopback address; database, UDP, LAN-only and unknown-protocol entries are disabled with a reason. Eligibility is a hint, not a successful connection test.
+
+<details>
+<summary>Understanding the readings and scan feedback</summary>
+
+- **Listening sockets** counts TCP listeners and UDP bindings, not unique port numbers. UDP has no TCP-style listening state.
+- **Dev services** in the summary counts distinct PIDs; sidebar counts are socket entries.
+- **Memory footprint** sums known RSS values once per PID across the full snapshot. It is not whole-machine memory usage. Multiple rows for a process share resource figures.
+- CPU is sampled; the first sample is unavailable. Its interval may differ from Task Manager. Missing metadata appears as `—`.
+- Service recognition covers common Next.js, Vite, Laravel, Node.js, Python, PostgreSQL, Redis, MySQL and Docker signatures. A **port hint** is an unverified suggestion. Docker recognition does not include container inventories or port mapping attribution.
+- Change summaries compare successful scans, retain the latest change batch and can be dismissed. They do not save history or send system notifications; changes between scans may be missed.
+- A clear scan or a post-stop “free” result describes observed bindings at that moment, not a guarantee that a later bind will succeed.
+
+</details>
+
+<details>
+<summary>Troubleshooting</summary>
+
+- **No results?** Clear search and reset filters, then refresh. Check for scan errors or permissions restrictions before concluding nothing is running.
+- **Desktop connection unavailable?** Open the desktop application with `pnpm dev` or build it with `pnpm run pack` and use `pnpm start`. `pnpm build` alone only builds the frontend.
+- **Stop disabled?** Read the reason in the inspector. Missing identity data, protected processes and system-managed processes disable this action. A stale selection requires a refresh.
+- **Scan failed?** Retry. An initial failure has its own error state; after a successful scan, failures retain the previous snapshot with an error notice.
+- **Project unknown?** Available process paths may not contain an accessible project marker. Identification is best-effort, not an inventory of every repo.
+
+</details>
+
+## Contribute
+
+You do not need to know the whole codebase to help. Documentation fixes, reproducible bug reports and small PRs are welcome.
+
+Useful starting points:
+
+- **Docs and onboarding:** clarify a confusing step or add a real troubleshooting example.
+- **React / TypeScript:** improve keyboard navigation, filtering and process inspection.
+- **Rust:** improve service recognition or project attribution, including tests for false matches.
+- **Platform testing:** try the app on macOS or Linux and report the OS version, steps and actual results.
+
+For a bug, describe what you expected, what happened and how to reproduce it. For a larger feature, open an issue to discuss the workflow before investing in implementation. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, focused validation and a source map.
+
+## Development commands
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm dev` | Launch the Tauri development window |
+| `pnpm build` | Type-check and build the frontend |
+| `pnpm test:frontend` | Run frontend logic tests |
+| `pnpm test` | Run frontend and Rust tests; the live fixture is separate |
+| `pnpm test:live` | Run the owned TCP/UDP fixture integration test |
+| `pnpm run pack` | Build a production desktop executable without an installer |
+| `pnpm start` | Launch the executable built by `pnpm run pack` |
+| `pnpm dist` | Build platform installers |
+
+Executables are under `src-tauri/target/release`; installers are under its `bundle` directory. Use `pnpm run pack`, not the package manager's `pnpm pack` tarball command.
+
+The [validation log](VALIDATION.md) records what was actually checked. Images currently in `docs/` predate the Tauri migration and are historical references, not current UI screenshots.
+
+## License
+
+[MIT](LICENSE) © Portwhim contributors.
