@@ -53,3 +53,22 @@ Track source, lockfiles and approved brand assets. Exclude compiled targets, ins
 ## Send a focused PR
 
 Explain the user-visible problem, what changes and how you checked it. Include before/after images for visual changes when helpful, label sample data honestly and keep unrelated edits separate. For user-facing changes, update both README languages when their instructions are affected.
+
+## Prepare a release
+
+The `Build release installers` workflow runs when a `v*` tag is pushed. It checks that the tag matches the versions in `package.json`, `src-tauri/tauri.conf.json` and `src-tauri/Cargo.toml`, runs tests, then builds Windows x64 EXE/MSI, macOS Apple Silicon and Intel DMG, and Linux x64 DEB/AppImage installers. Unlike `pnpm run pack`, it enables Tauri bundling.
+
+After merging the release configuration and version changes into `main` and checking CI, tag that commit:
+
+```sh
+git switch main
+git pull --ff-only
+git tag -a v0.1.0 -m "Release v0.1.0"
+git push origin v0.1.0
+```
+
+For later versions, update all three version fields and the Cargo lockfile before committing and tagging. All build jobs must succeed before installers are attached to a draft pre-release. Open GitHub Releases, download and test the installers, edit the release notes, and publish when ready. Draft releases are not public downloads. Remove the pre-release flag only when the version is ready for general use.
+
+The workflow uses the built-in `GITHUB_TOKEN`; no personal token is required. Windows installers are unsigned, and macOS uses ad-hoc signing without notarization. OS trust prompts may appear; configure platform signing credentials before offering signed releases. See the [Tauri distribution guide](https://v2.tauri.app/distribute/pipelines/github/).
+
+If a build fails, fix and validate it before tagging a new version, or re-run a transiently failed job. Re-running may replace assets on a draft, but the workflow refuses to change an already published release. Installer artifacts are also retained on the workflow run for 14 days.
