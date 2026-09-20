@@ -1,10 +1,12 @@
-<div align="center">
-  <img src="public/brand/mark.svg" width="88" alt="Portwhim logo" />
-  <h1>Portwhim</h1>
-  <p><strong>找到端口，找到项目，继续开发。</strong></p>
-  <p>在一个桌面窗口里，看清本机正在运行的服务。</p>
-  <p><a href="README.md">English</a> · <a href="#开始使用">开始使用</a> · <a href="#日常使用">使用指南</a> · <a href="#参与贡献">参与贡献</a></p>
-</div>
+![Portwhim Logo](docs/brand/readme-mark.svg)
+
+# Portwhim
+
+**找到端口，找到项目，继续开发。**
+
+在一个桌面窗口里，看清本机正在运行的服务。
+
+[English](README.md) · [开始使用](#开始使用) · [使用指南](#日常使用) · [参与贡献](#参与贡献)
 
 开发服务器报了 `EADDRINUSE`，任务管理器里却有好几个 `node`：哪个是今天的项目，哪个是昨天忘关的服务？到底该停哪一个？
 
@@ -123,8 +125,7 @@ pnpm start
 
 **Open localhost** 仅对具有已识别 Web 服务特征或支持的 Web 端口、且可通过回环地址访问的 TCP 绑定开放。它选择 HTTP/HTTPS 和回环地址；数据库、UDP、仅局域网绑定及协议依据不足的条目会禁用并说明原因。入口可用只代表符合推断规则，不代表已成功连接服务。
 
-<details>
-<summary>如何理解数字和扫描反馈</summary>
+### 如何理解数字和扫描反馈
 
 - **Listening sockets** 统计 TCP 监听和 UDP 绑定条目，不是不同端口号的数量；UDP 没有 TCP 式监听状态。
 - 顶部 **Dev services** 按 PID 统计进程数，侧栏统计 socket 条目数。
@@ -134,18 +135,13 @@ pnpm start
 - 变化摘要比较成功扫描，保留最新一批变化，可关闭；不保存历史，也不发送系统通知，扫描间隙的变化可能被遗漏。
 - 空列表或停止后的“已释放”描述的是当时观测到的绑定，不保证随后启动服务一定能绑定成功。
 
-</details>
-
-<details>
-<summary>常见问题</summary>
+### 常见问题
 
 - **没有结果？** 清空搜索并重置筛选，然后刷新。先检查扫描错误和权限限制，再判断是否没有服务运行。
 - **Desktop connection unavailable？** 使用 `pnpm dev` 启动桌面应用，或先 `pnpm run pack` 再 `pnpm start`。单独的 `pnpm build` 只构建前端。
 - **停止按钮不可用？** 查看详情中的具体原因。身份数据不足、受保护及系统管理进程会禁用停止；过期选择需要刷新后重选。
 - **扫描失败？** 点击重试。首次失败显示独立错误状态；已有成功扫描时，保留旧快照并提示错误。
 - **项目未知？** 可获取的进程路径可能不包含可访问的项目标记。项目识别尽力提供线索，并非完整仓库清单。
-
-</details>
 
 ## 参与贡献
 

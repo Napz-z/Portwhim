@@ -1,10 +1,12 @@
-<div align="center">
-  <img src="public/brand/mark.svg" width="88" alt="Portwhim logo" />
-  <h1>Portwhim</h1>
-  <p><strong>Find the port. Find the project. Get back to building.</strong></p>
-  <p>A desktop workspace for the services running on your machine.</p>
-  <p><a href="README.zh-CN.md">简体中文</a> · <a href="#get-started">Get started</a> · <a href="#everyday-workflows">Usage</a> · <a href="#contribute">Contribute</a></p>
-</div>
+![Portwhim logo](docs/brand/readme-mark.svg)
+
+# Portwhim
+
+**Find the port. Find the project. Get back to building.**
+
+A desktop workspace for the services running on your machine.
+
+[简体中文](README.zh-CN.md) · [Get started](#get-started) · [Usage](#everyday-workflows) · [Contribute](#contribute)
 
 Your dev server says `EADDRINUSE`. Several processes are called `node`. One belongs to today's project; another might be yesterday's forgotten server. Which one should you stop?
 
@@ -123,8 +125,7 @@ Click a port or PID to copy it; press `Esc` to close details. Text searches are 
 
 **Open localhost** is available for eligible TCP bindings with a recognized web-service signature or supported web port. It selects HTTP/HTTPS and a loopback address; database, UDP, LAN-only and unknown-protocol entries are disabled with a reason. Eligibility is a hint, not a successful connection test.
 
-<details>
-<summary>Understanding the readings and scan feedback</summary>
+### Understanding the readings and scan feedback
 
 - **Listening sockets** counts TCP listeners and UDP bindings, not unique port numbers. UDP has no TCP-style listening state.
 - **Dev services** in the summary counts distinct PIDs; sidebar counts are socket entries.
@@ -134,18 +135,13 @@ Click a port or PID to copy it; press `Esc` to close details. Text searches are 
 - Change summaries compare successful scans, retain the latest change batch and can be dismissed. They do not save history or send system notifications; changes between scans may be missed.
 - A clear scan or a post-stop “free” result describes observed bindings at that moment, not a guarantee that a later bind will succeed.
 
-</details>
-
-<details>
-<summary>Troubleshooting</summary>
+### Troubleshooting
 
 - **No results?** Clear search and reset filters, then refresh. Check for scan errors or permissions restrictions before concluding nothing is running.
 - **Desktop connection unavailable?** Open the desktop application with `pnpm dev` or build it with `pnpm run pack` and use `pnpm start`. `pnpm build` alone only builds the frontend.
 - **Stop disabled?** Read the reason in the inspector. Missing identity data, protected processes and system-managed processes disable this action. A stale selection requires a refresh.
 - **Scan failed?** Retry. An initial failure has its own error state; after a successful scan, failures retain the previous snapshot with an error notice.
 - **Project unknown?** Available process paths may not contain an accessible project marker. Identification is best-effort, not an inventory of every repo.
-
-</details>
 
 ## Contribute
 
