@@ -12,6 +12,16 @@ Your dev server says `EADDRINUSE`. Several processes are called `node`. One belo
 
 Built with **Tauri 2 · Rust · React · TypeScript**. Local only, no account or telemetry. [MIT licensed](LICENSE).
 
+## A look inside
+
+**Port explorer** — inspect ports, bind addresses, protocols and owning processes in one list. Shown here with the **System managed** filter selected.
+
+![Portwhim port explorer showing summary cards, search, filters and system-managed port bindings](docs/screenshots/port-explorer.png)
+
+**Process map** — see ports grouped by their owning process, with TCP/UDP protocols and binding counts. Expand a card to reveal more ports.
+
+![Portwhim process map showing process cards with their ports, protocols and binding counts](docs/screenshots/process-map.png)
+
 ## When is it useful?
 
 | When this happens… | Use Portwhim to… |
@@ -165,7 +175,7 @@ For a bug, describe what you expected, what happened and how to reproduce it. Fo
 
 Executables are under `src-tauri/target/release`; installers are under its `bundle` directory. Use `pnpm run pack`, not the package manager's `pnpm pack` tarball command.
 
-The [validation log](VALIDATION.md) records what was actually checked. Images currently in `docs/` predate the Tauri migration and are historical references, not current UI screenshots.
+The [validation log](VALIDATION.md) records what was actually checked. The previews above are provided screenshots of the Windows app. Older images at `docs/screenshot.png` and `docs/process-map.png` predate the Tauri migration and remain historical references.
 
 ## License
 

@@ -12,6 +12,16 @@
 
 使用 **Tauri 2 · Rust · React · TypeScript** 构建。本地运行，无需账户，没有遥测。[MIT 开源](LICENSE)。
 
+## 界面预览
+
+**端口列表** — 在同一张列表中查看端口、绑定地址、协议和占用进程。下图选中了 **System managed** 筛选，展示系统管理进程的端口绑定。
+
+![Portwhim 端口列表：概览卡片、搜索筛选与系统管理进程的端口绑定](docs/screenshots/port-explorer.png)
+
+**进程视图** — 按进程归组展示端口、TCP/UDP 协议和绑定数量；展开卡片即可查看更多端口。
+
+![Portwhim 进程视图：各进程卡片及其占用端口、协议与绑定数量](docs/screenshots/process-map.png)
+
 ## 什么时候会用到？
 
 | 遇到的问题 | Portwhim 能帮你做什么 |
@@ -165,7 +175,7 @@ pnpm start
 
 生产程序位于 `src-tauri/target/release`，安装包位于其 `bundle` 目录。请使用 `pnpm run pack`；`pnpm pack` 是包管理器生成源码 tarball 的另一条命令。
 
-实际检查过的范围见 [验证记录](VALIDATION.md)。`docs/` 中现有截图早于 Tauri 迁移，只作为历史参考，不代表当前界面。
+实际检查过的范围见 [验证记录](VALIDATION.md)。上方预览采用提供的 Windows 应用截图。旧文件 `docs/screenshot.png` 和 `docs/process-map.png` 早于 Tauri 迁移，保留作历史参考。
 
 ## 许可证
 
