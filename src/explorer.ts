@@ -33,13 +33,13 @@ export function sameProcess(a: Pick<Listener, 'pid'|'started'>, b: Pick<Listener
 }
 export function stopFeedback(target: Listener, listeners: Listener[]): { complete: boolean; message: string } {
   if (listeners.some(l => sameProcess(l, target))) {
-    return { complete: false, message: `Stop sent, but PID ${target.pid} is still running. Refresh and try again if needed.` };
+    return { complete: false, message: `Stop sent, but PID ${target.pid} still has listening sockets. Refresh to check again.` };
   }
   const replacement = listeners.find(l => l.protocol === target.protocol && l.port === target.port);
   if (replacement) {
-    return { complete: true, message: `${target.service} no longer appears, but :${target.port} is now used by ${replacement.name} (PID ${replacement.pid}).` };
+    return { complete: true, message: `${target.service} no longer appears, but ${target.protocol} :${target.port} is occupied by ${replacement.name} (PID ${replacement.pid}).` };
   }
-  return { complete: true, message: `:${target.port} is now free · ${target.service} no longer appears in the listener scan.` };
+  return { complete: true, message: `No ${target.protocol} listener observed on :${target.port} in this scan. Binding availability is not guaranteed.` };
 }
 export function inspectLabel(l: Listener): string {
   return `Inspect ${l.name}, PID ${l.pid}, ${l.protocol} port ${l.port} at ${l.address}`;

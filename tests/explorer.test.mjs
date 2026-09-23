@@ -47,15 +47,15 @@ test('stop feedback distinguishes a running target, a freed port, and a replacem
   assert.notEqual(identity(target), identity({ ...target, started: '2026-09-14T01:01:00Z' }));
   assert.deepEqual(stopFeedback(target, [{ ...target, address: '::1' }]), {
     complete: false,
-    message: 'Stop sent, but PID 100 is still running. Refresh and try again if needed.'
+    message: 'Stop sent, but PID 100 still has listening sockets. Refresh to check again.'
   });
   assert.deepEqual(stopFeedback(target, []), {
     complete: true,
-    message: ':80 is now free · Vite no longer appears in the listener scan.'
+    message: 'No TCP listener observed on :80 in this scan. Binding availability is not guaranteed.'
   });
   assert.deepEqual(stopFeedback(target, [{ ...target, pid: 101, name: 'replacement', started: '2026-09-14T01:02:00Z' }]), {
     complete: true,
-    message: 'Vite no longer appears, but :80 is now used by replacement (PID 101).'
+    message: 'Vite no longer appears, but TCP :80 is occupied by replacement (PID 101).'
   });
 });
 for (const c of JSON.parse(readFileSync(new URL('./open-cases.json', import.meta.url), 'utf8'))) {
