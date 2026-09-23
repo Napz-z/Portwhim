@@ -1,6 +1,27 @@
 import type { Listener } from './shared';
 
 export interface Filters { query: string; protocol: string; filter: string }
+export function queryPort(query: string): number | null {
+  const text = query.trim();
+  const direct = /^:?(\d{1,5})$/.exec(text);
+  let value = direct?.[1];
+  if (!value) {
+    try {
+      const url = new URL(text.includes('://') ? text : `http://${text}`);
+      if (!['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)) return null;
+      value = url.port || (text.includes('://') ? (url.protocol === 'https:' ? '443' : url.protocol === 'http:' ? '80' : '') : '');
+    } catch { return null; }
+  }
+  const port = Number(value);
+  return Number.isInteger(port) && port > 0 && port <= 65535 ? port : null;
+}
+export function matchesQuery(l: Listener, query: string): boolean {
+  const port = queryPort(query);
+  if (port !== null) return l.port === port;
+  const text = query.trim().toLowerCase();
+  if (/^pid:\d+$/.test(text)) return l.pid === Number(text.slice(4));
+  return `${l.port} ${l.pid} ${l.name} ${l.service} ${l.address} ${l.provenance.project?.name || ''} ${l.provenance.project?.directory || ''}`.toLowerCase().includes(text);
+}
 export function clearSearch(state: Filters): Filters { return { ...state, query: '' }; }
 export function resetFilters(): Filters { return { query: '', protocol: 'all', filter: 'all' }; }
 export function hasFilters(state: Filters): boolean {
