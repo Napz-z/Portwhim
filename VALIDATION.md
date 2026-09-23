@@ -1,3 +1,15 @@
+# Feature upgrades — 2026-09-23
+
+Windows x64. Frontend production build/type checking passed. All 31 frontend tests and 9 Rust unit tests passed. Docker parser tests cover IPv4/IPv6, TCP/UDP, Compose labels, exposed-only exclusion, invalid JSON and published port ranges. The real owned TCP/UDP integration test passed outside the sandbox: scan, identity validation, termination and disappearance; no unrelated process was stopped.
+
+The native debug desktop launched and showed real local sockets. Browser interaction checks used `tests/ui-fixture.html`, visibly marked as simulated with no process termination: exact localhost-URL search excluded a conflicting PID; Enter opened details; simulated stop produced persistent feedback and activity; a favorite with no listener survived reload; protocol-hidden matches recovered with Show all matches. The fixture is a development-only entry, not the production entry. Computer-use checks informed the fixture base-URL correction and refresh-label correction.
+
+Limits: this machine has no Docker CLI/engine, so live container integration is not verified. Native tray menu selection/hide/restore and background timer cadence are implemented and compile-checked but not interaction-verified. Native UI input automation was unreliable; browser fixture checks do not substitute for native stop-dialog or tray verification. No new installer was built or installed. macOS/Linux remain unverified.
+
+An ensuing Rust rebuild exposed a Vite watcher EBUSY error on a generated Windows executable. Vite now excludes `src-tauri` (Tauri owns its Rust watcher). This stopped the final browser cleanup/recheck; earlier interaction results above were completed before the server exited.
+
+---
+
 # Stop feedback and first-scan states — 2026-09-14
 
 Windows x64. TypeScript checking and the Vite production build passed. Twenty-nine frontend tests passed, including target-process identity, recycled-PID separation, port release, replacement ownership and still-listening stop outcomes. Seven Rust unit tests passed. The owned TCP/UDP fixture integration test passed outside the restricted sandbox: native discovery, identity checks, termination and socket disappearance all completed without touching an unrelated process.

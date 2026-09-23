@@ -1,0 +1,8 @@
+<!doctype html><html><head><meta charset="UTF-8"><base href="/"><title>Portwhim test fixture</title></head><body>
+<div style="position:fixed;top:0;left:40%;z-index:100;color:white;background:#663300;padding:4px">TEST FIXTURE — simulated sockets, no process termination</div>
+<div id="root"></div><script type="module">
+const target={id:'fixture',pid:800,name:'test-node',port:3000,protocol:'TCP',address:'127.0.0.1',started:'2026-09-23T00:00:00Z',cpu:1,memory:1048576,service:'Vite',confidence:'process',category:'app',scope:'loopback',systemManaged:false,canStop:true,stopReason:null,provenance:{project:null,parent:null,ancestors:[],source:null}};
+let rows=[target,{...target,id:'other',pid:3000,port:8080,name:'other-process'}];
+window.portwhim={scan:async()=>({listeners:rows,scannedAt:new Date().toISOString(),hostname:'SIMULATED FIXTURE',platform:'win32',warnings:[]}),stop:async()=>{rows=rows.filter(r=>r.id!=='fixture');return{};},copy:async()=>{},open:async()=>{}};
+await import('/src/main.tsx');
+</script></body></html>
