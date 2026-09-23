@@ -1,9 +1,33 @@
 use std::sync::Mutex;
-use tauri::State;
+use tauri::{Manager, State};
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 use tauri_plugin_opener::OpenerExt;
 mod browser;
+mod docker;
+mod tray;
+#[tauri::command]
+fn tray_update(
+    app: tauri::AppHandle,
+    state: State<'_, Store>,
+    favorites: Vec<tray::Favorite>,
+) -> Result<(), String> {
+    let snapshot = state.lock().map_err(|e| e.to_string())?.latest.clone();
+    tray::update(&app, &favorites, snapshot.as_ref()).map_err(|e| e.to_string())
+}
+#[tauri::command]
+fn hide_to_tray(app: tauri::AppHandle) -> Result<(), String> {
+    app.get_webview_window("main")
+        .ok_or("Window unavailable")?
+        .hide()
+        .map_err(|e| e.to_string())
+}
+#[tauri::command]
+async fn docker_ports() -> Result<Vec<docker::Mapping>, String> {
+    tauri::async_runtime::spawn_blocking(docker::scan)
+        .await
+        .map_err(|e| e.to_string())?
+}
 pub mod scanner;
 use scanner::{Listener, Scanner, Snapshot};
 #[derive(Default)]
@@ -90,7 +114,19 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_opener::init())
         .manage(Store::default())
-        .invoke_handler(tauri::generate_handler![scan, copy, open, stop])
+        .setup(|app| {
+            tray::setup(app.handle())?;
+            Ok(())
+        })
+        .invoke_handler(tauri::generate_handler![
+            scan,
+            copy,
+            open,
+            stop,
+            docker_ports,
+            tray_update,
+            hide_to_tray
+        ])
         .run(tauri::generate_context!())
         .expect("Failed to run Portwhim");
 }
