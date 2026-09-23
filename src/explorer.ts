@@ -1,14 +1,23 @@
 import type { Listener } from './shared';
 
 export interface Filters { query: string; protocol: string; filter: string }
+export function portQuery(query: string): { port: number | null; error: string | null } {
+  const q = query.trim();
+  if (!/^\d+$/.test(q) && !/^(?:port:|:)/i.test(q)) return { port: null, error: null };
+  const value = q.replace(/^(?:port:|:)\s*/i, '');
+  if (!/^\d+$/.test(value) || Number(value) < 1 || Number(value) > 65535)
+    return { port: null, error: 'Enter a port from 1 to 65535.' };
+  return { port: Number(value), error: null };
+}
 export function queryPort(query: string): number | null {
   const text = query.trim();
-  const direct = /^:?(\d{1,5})$/.exec(text);
-  let value = direct?.[1];
+  const parsed = portQuery(text);
+  if (parsed.error) return null;
+  let value = parsed.port?.toString();
   if (!value) {
     try {
       const url = new URL(text.includes('://') ? text : `http://${text}`);
-      if (!['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)) return null;
+      if (!['localhost', '127.0.0.1', '::1', '[::1]'].includes(url.hostname)) return null;
       value = url.port || (text.includes('://') ? (url.protocol === 'https:' ? '443' : url.protocol === 'http:' ? '80' : '') : '');
     } catch { return null; }
   }
@@ -16,6 +25,8 @@ export function queryPort(query: string): number | null {
   return Number.isInteger(port) && port > 0 && port <= 65535 ? port : null;
 }
 export function matchesQuery(l: Listener, query: string): boolean {
+  const parsed = portQuery(query);
+  if (parsed.error) return false;
   const port = queryPort(query);
   if (port !== null) return l.port === port;
   const text = query.trim().toLowerCase();
@@ -62,6 +73,29 @@ export function sortListeners(listeners: Listener[], sort: 'port'|'memory'): Lis
   return [...listeners].sort((a, b) =>
     (sort === 'memory' ? (b.memory ?? -1) - (a.memory ?? -1) : 0) ||
     a.port - b.port || a.pid - b.pid || a.protocol.localeCompare(b.protocol) || a.address.localeCompare(b.address));
+}
+
+export function portChanges(before: Listener[], after: Listener[]): string[] {
+  const group = (rows: Listener[]) => {
+    const map = new Map<string, Listener[]>();
+    for (const l of rows) {
+      const key = `${l.protocol} :${l.port}`;
+      map.set(key, [...(map.get(key) || []), l]);
+    }
+    return map;
+  };
+  const old = group(before), next = group(after), changes: string[] = [];
+  const owners = (rows: Listener[]) => [...new Set(rows.map(l => `${l.pid}:${l.started ?? 'unknown'}`))].sort().join(',');
+  for (const [key, rows] of next) {
+    const previous = old.get(key);
+    if (!previous) changes.push(`${key} appeared`);
+    else if (owners(previous) !== owners(rows)) {
+      const names = [...new Set(rows.map(l => `${l.name} (PID ${l.pid})`))];
+      changes.push(`${key} owner changed → ${names.slice(0, 2).join(', ')}${names.length > 2 ? ` +${names.length - 2} more` : ''}`);
+    }
+  }
+  for (const key of old.keys()) if (!next.has(key)) changes.push(`${key} no longer observed`);
+  return changes;
 }
 
 // Keep aligned with the backend using tests/open-cases.json. These are candidates,

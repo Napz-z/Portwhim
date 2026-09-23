@@ -1,15 +1,3 @@
-# Feature upgrades — 2026-09-23
-
-Windows x64. Frontend production build/type checking passed. All 31 frontend tests and 9 Rust unit tests passed. Docker parser tests cover IPv4/IPv6, TCP/UDP, Compose labels, exposed-only exclusion, invalid JSON and published port ranges. The real owned TCP/UDP integration test passed outside the sandbox: scan, identity validation, termination and disappearance; no unrelated process was stopped.
-
-The native debug desktop launched and showed real local sockets. Browser interaction checks used `tests/ui-fixture.html`, visibly marked as simulated with no process termination: exact localhost-URL search excluded a conflicting PID; Enter opened details; simulated stop produced persistent feedback and activity; a favorite with no listener survived reload; protocol-hidden matches recovered with Show all matches. The fixture is a development-only entry, not the production entry. Computer-use checks informed the fixture base-URL correction and refresh-label correction.
-
-Limits: this machine has no Docker CLI/engine, so live container integration is not verified. Native tray menu selection/hide/restore and background timer cadence are implemented and compile-checked but not interaction-verified. Native UI input automation was unreliable; browser fixture checks do not substitute for native stop-dialog or tray verification. No new installer was built or installed. macOS/Linux remain unverified.
-
-An ensuing Rust rebuild exposed a Vite watcher EBUSY error on a generated Windows executable. Vite now excludes `src-tauri` (Tauri owns its Rust watcher). This stopped the final browser cleanup/recheck; earlier interaction results above were completed before the server exited.
-
----
-
 # Stop feedback and first-scan states — 2026-09-14
 
 Windows x64. TypeScript checking and the Vite production build passed. Twenty-nine frontend tests passed, including target-process identity, recycled-PID separation, port release, replacement ownership and still-listening stop outcomes. Seven Rust unit tests passed. The owned TCP/UDP fixture integration test passed outside the restricted sandbox: native discovery, identity checks, termination and socket disappearance all completed without touching an unrelated process.
@@ -65,3 +53,24 @@ The local Windows bundle is unsigned. Its Electron runtime was downloaded from a
 
 A read-only Windows scan reproduced missing start times and zero-valued memory from sysinfo for System, service hosts and several background services. Partial restrictions now appear as a per-process stopReason instead of a blanket warning. Whole-scan identity failure still produces a warning. Zero RSS is conservatively treated as unavailable because this provider uses zero for failed reads; CPU is unavailable when identity metadata is absent. Missing values are excluded from measured-process counts. Five unit tests and the owned TCP/UDP integration test passed, along with frontend type checking. Stop identity checks remain enforced. This does not grant access to OS-restricted processes.
 Release UI verification: no global warning for the mixed-access scan; 123 restricted socket rows had null memory and all disabled stop actions had a reason. The port 135 inspector displayed the specific startup-time limitation. NSIS installer rebuilt successfully.
+
+## 2026-09-15: Exact ports, project actions, port changes
+
+- TypeScript check and Vite production build passed.
+- Frontend: 31 tests passed, including exact search versus PID/path/partial matches, malformed and out-of-range ports, text search, owner replacement, TCP/UDP separation and duplicate-address/resource-change suppression.
+- Rust: 8 tests passed, including absolute existing directory validation and rejection of missing paths/files/relative paths.
+- Folder opening uses the native opener with a backend-selected, canonicalized directory; clipboard copies the backend-selected project path. Native file-manager launch and clipboard interaction have not been manually exercised in this run.
+- Change summaries compare successful scans only, establish the baseline silently, retain only the latest change batch in memory, and can be dismissed. They are sampled observations, not a complete history.
+
+## 2026-09-15: Dark change notice and Windows icon
+
+- Replaced light notification surface with explicit dark background and text colors; body text contrast is 11.78:1.
+- Tauri codegen 2.6.3 reads ICO entry zero as its window icon. Reordered existing frames from largest to smallest so the 256px frame replaces the previously selected 16px frame. All seven frames decode and their payload hashes match the original; brand geometry is unchanged.
+- Production build includes the corrected style and window icon. Actual Windows taskbar rendering remains to be confirmed after reopening the updated executable.
+# Feature upgrades — 2026-09-23
+
+Windows x64. Frontend production build/type checking passed. The merged tree retains the remote project-attribution actions and release workflow, plus exact URL/PID search, named favorites, persistent stop outcomes, recent port activity, Docker attribution and tray shortcuts. Frontend and Rust tests passed before this merge; a final merged-tree run is required before publishing.
+
+The native debug desktop showed real local sockets. Browser fixture checks used `tests/ui-fixture.html`, visibly marked as simulated with no process termination: exact localhost-URL search, Enter-to-inspect, persistent stop feedback, favorite reload persistence and hidden-match recovery all worked. This fixture is development-only. No Docker CLI/engine was available, so live container inspection remains unverified; native tray menu interaction and background cadence also remain compile-checked rather than manually exercised.
+
+---

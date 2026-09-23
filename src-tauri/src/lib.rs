@@ -68,6 +68,13 @@ fn copy(
     let value = match field.as_str() {
         "pid" => row.pid.to_string(),
         "port" => row.port.to_string(),
+        "projectPath" => row
+            .provenance
+            .project
+            .as_ref()
+            .ok_or("No project directory was identified.")?
+            .directory
+            .clone(),
         _ => return Err("Invalid field".into()),
     };
     app.clipboard().write_text(value).map_err(|e| e.to_string())
@@ -78,6 +85,32 @@ fn open(app: tauri::AppHandle, state: State<'_, Store>, id: String) -> Result<()
     let url = browser::open_target(&row)?;
     app.opener()
         .open_url(url, None::<&str>)
+        .map_err(|e| e.to_string())
+}
+fn existing_directory(directory: &str) -> Result<std::path::PathBuf, String> {
+    let path = std::path::Path::new(directory);
+    if !path.is_absolute() {
+        return Err("Project directory must be an absolute path.".into());
+    }
+    let path = path
+        .canonicalize()
+        .map_err(|_| "Project directory is unavailable or no longer exists.".to_string())?;
+    if !path.is_dir() {
+        return Err("Project path is no longer a directory.".into());
+    }
+    Ok(path)
+}
+#[tauri::command]
+fn open_project(app: tauri::AppHandle, state: State<'_, Store>, id: String) -> Result<(), String> {
+    let row = selected(&state, &id)?;
+    let project = row
+        .provenance
+        .project
+        .as_ref()
+        .ok_or("No project directory was identified.")?;
+    let path = existing_directory(&project.directory)?;
+    app.opener()
+        .open_path(path.to_string_lossy(), None::<&str>)
         .map_err(|e| e.to_string())
 }
 #[tauri::command]
@@ -122,6 +155,7 @@ pub fn run() {
             scan,
             copy,
             open,
+            open_project,
             stop,
             docker_ports,
             tray_update,

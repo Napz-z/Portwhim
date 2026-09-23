@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { clearSearch, resetFilters, hasFilters, identity, socketGroups, visibleGroups, sortListeners, openTarget, inspectLabel, sameProcess, stopFeedback } from '../src/explorer.ts';
+import { clearSearch, resetFilters, hasFilters, identity, socketGroups, visibleGroups, sortListeners, openTarget, inspectLabel, sameProcess, stopFeedback, portQuery, matchesQuery, portChanges } from '../src/explorer.ts';
 
 test('Clear search preserves ownership and protocol; reset restores All listeners', () => {
   const active = { query: 'no matches', protocol: 'UDP', filter: 'system' };
@@ -61,3 +61,24 @@ test('stop feedback distinguishes a running target, a freed port, and a replacem
 for (const c of JSON.parse(readFileSync(new URL('./open-cases.json', import.meta.url), 'utf8'))) {
   test(`browser policy: ${c.name}`, () => assert.deepEqual(openTarget(c.row), { url: c.url, reason: c.reason }));
 }
+
+test('exact port queries do not match PID, path, or partial ports', () => {
+  const l = { ...row, port: 3000, pid: 8080, service: 'Vite', provenance: { project: { name: 'Demo', directory: '/work/9000' } } };
+  for (const q of ['3000', ':3000', 'port:3000', 'PORT: 3000', 'http://localhost:3000']) assert.equal(matchesQuery(l, q), true);
+  for (const q of ['300', '8080', '9000']) assert.equal(matchesQuery(l, q), false);
+  for (const q of ['0', '65536', ':abc', 'port:', 'port:3.5']) assert.ok(portQuery(q).error);
+  assert.equal(portQuery('65535').port, 65535);
+  assert.equal(matchesQuery(l, ' demo '), true);
+  assert.equal(matchesQuery(l, '/work/9000'), true);
+});
+
+test('port changes ignore ordering, resource samples and duplicate address bindings', () => {
+  const l = { ...row, started: '2026-01-01' };
+  assert.deepEqual(portChanges([l], [{ ...l, memory: 999 }, { ...l, address: '::1' }]), []);
+  assert.deepEqual(portChanges([l, { ...l, pid: 101 }], [{ ...l, pid: 101 }, l]), []);
+  assert.match(portChanges([l], [{ ...l, started: '2026-02-01' }])[0], /owner changed/);
+  assert.match(portChanges([l], [])[0], /no longer observed/);
+  assert.match(portChanges([], [l, { ...l, address: '::1' }])[0], /appeared/);
+  assert.equal(portChanges([], [l, { ...l, address: '::1' }]).length, 1);
+  assert.equal(portChanges([l], [{ ...l, protocol: 'UDP' }]).length, 2);
+});
