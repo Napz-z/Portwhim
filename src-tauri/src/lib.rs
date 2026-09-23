@@ -164,3 +164,16 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("Failed to run Portwhim");
 }
+
+#[cfg(test)]
+mod project_tests {
+    use super::existing_directory;
+    #[test]
+    fn project_directory_must_be_existing_absolute_directory() {
+        assert!(existing_directory("relative/path").is_err());
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+        assert!(existing_directory(root.to_str().unwrap()).is_ok());
+        assert!(existing_directory(root.join("Cargo.toml").to_str().unwrap()).is_err());
+        assert!(existing_directory(root.join("missing-project-directory").to_str().unwrap()).is_err());
+    }
+}

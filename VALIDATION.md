@@ -69,7 +69,7 @@ Release UI verification: no global warning for the mixed-access scan; 123 restri
 - Production build includes the corrected style and window icon. Actual Windows taskbar rendering remains to be confirmed after reopening the updated executable.
 # Feature upgrades — 2026-09-23
 
-Windows x64. Frontend production build/type checking passed. The merged tree retains the remote project-attribution actions and release workflow, plus exact URL/PID search, named favorites, persistent stop outcomes, recent port activity, Docker attribution and tray shortcuts. Frontend and Rust tests passed before this merge; a final merged-tree run is required before publishing.
+Windows x64. The merged tree retains the remote project-attribution actions and release workflow, plus exact URL/PID search, named favorites, persistent stop outcomes, recent port activity, Docker attribution and tray shortcuts. Before publication on 2026-09-24, restored the remote centered inspector, its project actions and directory-validation test, and retained invalid-port feedback. Production build/type checking, 33 frontend tests and 10 Rust unit tests passed on this integrated tree. Native tray and live Docker interaction remain unverified as described below.
 
 The native debug desktop showed real local sockets. Browser fixture checks used `tests/ui-fixture.html`, visibly marked as simulated with no process termination: exact localhost-URL search, Enter-to-inspect, persistent stop feedback, favorite reload persistence and hidden-match recovery all worked. This fixture is development-only. No Docker CLI/engine was available, so live container inspection remains unverified; native tray menu interaction and background cadence also remain compile-checked rather than manually exercised.
 

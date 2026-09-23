@@ -152,8 +152,8 @@ pnpm start
 - 顶部 **Dev services** 按 PID 统计进程数，侧栏统计 socket 条目数。
 - **Memory footprint** 对完整扫描中已知 RSS 按 PID 去重汇总，不是整机内存占用。同进程的多行条目共享资源数值。
 - CPU 为采样值，首轮不可用，采样间隔可能与任务管理器不同；缺失信息显示 `—`。
-- 服务识别覆盖常见 Next.js、Vite、Laravel、Node.js、Python、PostgreSQL、Redis、MySQL 和 Docker 特征；**port hint** 仅为未验证的端口提示。Docker 识别不包含容器清单或端口映射归属。
-- 变化摘要比较成功扫描，保留最新一批变化，可关闭；不保存历史，也不发送系统通知，扫描间隙的变化可能被遗漏。
+- 服务识别覆盖常见 Next.js、Vite、Laravel、Node.js、Python、PostgreSQL、Redis、MySQL 和 Docker 特征；**port hint** 仅为未验证的端口提示。独立的 Docker 检查展示手动读取的本地引擎已发布端口映射。
+- 最近活动比较成功扫描，在当前会话保留最多 20 条变化，可关闭；重启后不保留，扫描间隙的变化可能被遗漏。
 - 空列表或停止后的“已释放”描述的是当时观测到的绑定，不保证随后启动服务一定能绑定成功。
 
 ### 常见问题

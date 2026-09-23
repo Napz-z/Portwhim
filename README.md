@@ -152,8 +152,8 @@ Click a port or PID to copy it; press `Esc` to close details. Text searches are 
 - **Dev services** in the summary counts distinct PIDs; sidebar counts are socket entries.
 - **Memory footprint** sums known RSS values once per PID across the full snapshot. It is not whole-machine memory usage. Multiple rows for a process share resource figures.
 - CPU is sampled; the first sample is unavailable. Its interval may differ from Task Manager. Missing metadata appears as `—`.
-- Service recognition covers common Next.js, Vite, Laravel, Node.js, Python, PostgreSQL, Redis, MySQL and Docker signatures. A **port hint** is an unverified suggestion. Docker recognition does not include container inventories or port mapping attribution.
-- Change summaries compare successful scans, retain the latest change batch and can be dismissed. They do not save history or send system notifications; changes between scans may be missed.
+- Service recognition covers common Next.js, Vite, Laravel, Node.js, Python, PostgreSQL, Redis, MySQL and Docker signatures. A **port hint** is an unverified suggestion. The separate Docker inspection shows published mappings from a manual local-engine snapshot.
+- Recent activity compares successful scans and retains up to 20 changes in the current session. It can be dismissed, is not saved across restarts, and may miss changes between scans.
 - A clear scan or a post-stop “free” result describes observed bindings at that moment, not a guarantee that a later bind will succeed.
 
 ### Troubleshooting
