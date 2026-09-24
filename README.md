@@ -8,7 +8,7 @@ A desktop workspace for the services running on your machine.
 
 [简体中文](README.zh-CN.md) · [Get started](#get-started) · [Usage](#everyday-workflows) · [Contribute](#contribute)
 
-**[Download for Windows x64 — v0.1.1](https://github.com/Napz-z/Portwhim/releases/download/v0.1.1/Portwhim_0.1.1_x64-setup.exe)** · [macOS / Linux downloads](#download-a-built-app) · [Latest release](https://github.com/Napz-z/Portwhim/releases/latest)
+**[Download for Windows x64 — v0.1.2](https://github.com/Napz-z/Portwhim/releases/download/v0.1.2/Portwhim_0.1.2_x64-setup.exe)** · [macOS / Linux downloads](#download-a-built-app) · [Latest release](https://github.com/Napz-z/Portwhim/releases/latest)
 
 Preview build. Windows installers are unsigned; macOS builds are not notarized. See [platform status and installation notes](#download-a-built-app) before installing.
 
@@ -77,16 +77,16 @@ These are workflow comparisons, not claims that Portwhim is faster or more capab
 
 ### Download a built app
 
-Download an installer for **v0.1.1**, install it and launch **Portwhim**. You do not need Node.js, pnpm or Rust to use a built app.
+Download an installer for **v0.1.2**, install it and launch **Portwhim**. You do not need Node.js, pnpm or Rust to use a built app.
 
-| Platform | Download v0.1.1 | Validation status |
+| Platform | Download v0.1.2 | Validation status |
 | --- | --- | --- |
-| Windows x64 | [EXE installer](https://github.com/Napz-z/Portwhim/releases/download/v0.1.1/Portwhim_0.1.1_x64-setup.exe) · [MSI installer](https://github.com/Napz-z/Portwhim/releases/download/v0.1.1/Portwhim_0.1.1_x64_en-US.msi) | Primary validated platform; installer installation still needs validation |
-| macOS Apple Silicon | [DMG](https://github.com/Napz-z/Portwhim/releases/download/v0.1.1/Portwhim_0.1.1_aarch64.dmg) | Built in CI; native installation and runtime validation still needed |
-| macOS Intel | [DMG](https://github.com/Napz-z/Portwhim/releases/download/v0.1.1/Portwhim_0.1.1_x64.dmg) | Built in CI; native installation and runtime validation still needed |
-| Linux x64 | [DEB](https://github.com/Napz-z/Portwhim/releases/download/v0.1.1/Portwhim_0.1.1_amd64.deb) · [AppImage](https://github.com/Napz-z/Portwhim/releases/download/v0.1.1/Portwhim_0.1.1_amd64.AppImage) | Built in CI; native installation and runtime validation still needed |
+| Windows x64 | [EXE installer](https://github.com/Napz-z/Portwhim/releases/download/v0.1.2/Portwhim_0.1.2_x64-setup.exe) · [MSI installer](https://github.com/Napz-z/Portwhim/releases/download/v0.1.2/Portwhim_0.1.2_x64_en-US.msi) | Primary validated platform; installer installation still needs validation |
+| macOS Apple Silicon | [DMG](https://github.com/Napz-z/Portwhim/releases/download/v0.1.2/Portwhim_0.1.2_aarch64.dmg) | Built in CI; native installation and runtime validation still needed |
+| macOS Intel | [DMG](https://github.com/Napz-z/Portwhim/releases/download/v0.1.2/Portwhim_0.1.2_x64.dmg) | Built in CI; native installation and runtime validation still needed |
+| Linux x64 | [DEB](https://github.com/Napz-z/Portwhim/releases/download/v0.1.2/Portwhim_0.1.2_amd64.deb) · [AppImage](https://github.com/Napz-z/Portwhim/releases/download/v0.1.2/Portwhim_0.1.2_amd64.AppImage) | Built in CI; native installation and runtime validation still needed |
 
-See the [v0.1.1 release notes](https://github.com/Napz-z/Portwhim/releases/tag/v0.1.1) for this preview build, or check the [latest release](https://github.com/Napz-z/Portwhim/releases/latest) for newer versions.
+See the [v0.1.2 release notes](https://github.com/Napz-z/Portwhim/releases/tag/v0.1.2) for this preview build, or check the [latest release](https://github.com/Napz-z/Portwhim/releases/latest) for newer versions.
 
 - Windows installers are **unsigned**. macOS builds use **ad-hoc signing without notarization**. Your OS may display a trust warning or block installation.
 - Windows requires WebView2; the installer downloads it if missing, so offline machines need it installed beforehand.

@@ -8,7 +8,7 @@
 
 [English](README.md) · [开始使用](#开始使用) · [使用指南](#日常使用) · [参与贡献](#参与贡献)
 
-**[下载 Windows x64 版 — v0.1.1](https://github.com/Napz-z/Portwhim/releases/download/v0.1.1/Portwhim_0.1.1_x64-setup.exe)** · [macOS / Linux 下载](#下载安装包) · [最新版本](https://github.com/Napz-z/Portwhim/releases/latest)
+**[下载 Windows x64 版 — v0.1.2](https://github.com/Napz-z/Portwhim/releases/download/v0.1.2/Portwhim_0.1.2_x64-setup.exe)** · [macOS / Linux 下载](#下载安装包) · [最新版本](https://github.com/Napz-z/Portwhim/releases/latest)
 
 当前为预览构建。Windows 安装包未签名，macOS 构建未经公证。安装前请查看[平台状态与安装说明](#下载安装包)。
 
@@ -77,16 +77,16 @@
 
 ### 下载安装包
 
-下载适合你系统的 **v0.1.1** 安装包，安装后启动 **Portwhim**。使用构建好的应用不需要安装 Node.js、pnpm 或 Rust。
+下载适合你系统的 **v0.1.2** 安装包，安装后启动 **Portwhim**。使用构建好的应用不需要安装 Node.js、pnpm 或 Rust。
 
-| 平台 | 下载 v0.1.1 | 验证状态 |
+| 平台 | 下载 v0.1.2 | 验证状态 |
 | --- | --- | --- |
-| Windows x64 | [EXE 安装包](https://github.com/Napz-z/Portwhim/releases/download/v0.1.1/Portwhim_0.1.1_x64-setup.exe) · [MSI 安装包](https://github.com/Napz-z/Portwhim/releases/download/v0.1.1/Portwhim_0.1.1_x64_en-US.msi) | 主要验证平台；安装包的实际安装仍需验证 |
-| macOS Apple Silicon | [DMG](https://github.com/Napz-z/Portwhim/releases/download/v0.1.1/Portwhim_0.1.1_aarch64.dmg) | 已通过 CI 构建；仍需本机安装与运行验证 |
-| macOS Intel | [DMG](https://github.com/Napz-z/Portwhim/releases/download/v0.1.1/Portwhim_0.1.1_x64.dmg) | 已通过 CI 构建；仍需本机安装与运行验证 |
-| Linux x64 | [DEB](https://github.com/Napz-z/Portwhim/releases/download/v0.1.1/Portwhim_0.1.1_amd64.deb) · [AppImage](https://github.com/Napz-z/Portwhim/releases/download/v0.1.1/Portwhim_0.1.1_amd64.AppImage) | 已通过 CI 构建；仍需本机安装与运行验证 |
+| Windows x64 | [EXE 安装包](https://github.com/Napz-z/Portwhim/releases/download/v0.1.2/Portwhim_0.1.2_x64-setup.exe) · [MSI 安装包](https://github.com/Napz-z/Portwhim/releases/download/v0.1.2/Portwhim_0.1.2_x64_en-US.msi) | 主要验证平台；安装包的实际安装仍需验证 |
+| macOS Apple Silicon | [DMG](https://github.com/Napz-z/Portwhim/releases/download/v0.1.2/Portwhim_0.1.2_aarch64.dmg) | 已通过 CI 构建；仍需本机安装与运行验证 |
+| macOS Intel | [DMG](https://github.com/Napz-z/Portwhim/releases/download/v0.1.2/Portwhim_0.1.2_x64.dmg) | 已通过 CI 构建；仍需本机安装与运行验证 |
+| Linux x64 | [DEB](https://github.com/Napz-z/Portwhim/releases/download/v0.1.2/Portwhim_0.1.2_amd64.deb) · [AppImage](https://github.com/Napz-z/Portwhim/releases/download/v0.1.2/Portwhim_0.1.2_amd64.AppImage) | 已通过 CI 构建；仍需本机安装与运行验证 |
 
-本预览构建的说明见 [v0.1.1 发行说明](https://github.com/Napz-z/Portwhim/releases/tag/v0.1.1)；后续更新可查看[最新版本](https://github.com/Napz-z/Portwhim/releases/latest)。
+本预览构建的说明见 [v0.1.2 发行说明](https://github.com/Napz-z/Portwhim/releases/tag/v0.1.2)；后续更新可查看[最新版本](https://github.com/Napz-z/Portwhim/releases/latest)。
 
 - Windows 安装包**未签名**；macOS 构建使用 **ad-hoc 签名，未经公证**。操作系统可能显示信任提示或阻止安装。
 - Windows 需要 WebView2；缺失时安装包会联网下载，离线电脑需要预先安装。
