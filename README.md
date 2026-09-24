@@ -73,6 +73,16 @@ Scans and project recognition run locally in Rust. Raw command lines stay out of
 
 These are workflow comparisons, not claims that Portwhim is faster or more capable in every situation. Its focus is interactive local development; it does not provide a scripting CLI, packet capture or remote-host management.
 
+## In development (not included in the v0.1.2 installers)
+
+- **Project view:** use the folder button beside List / Process map. Services share a card by Git working directory, with branch and worktree context when readable; otherwise the detected project directory is used. Add up to 64 named expected TCP/UDP services locally. An occupied port attributed elsewhere is distinguished from a missing listener. Unknown owners remain separate.
+- **Port watch:** enable **Watch** on individual favorites. A native worker scans every 5 seconds while the app runs, including in the tray and when explorer refresh is paused. Its first successful observation is silent; changes must persist for at least 10 seconds, with a 60-second cooldown per port. Same-project/name PID changes are suppressed to reduce hot-reload noise; without project attribution, process identity is used. Failed scans do not count as disappearance. The last 20 watch alerts stay in the current session. System notification settings still apply; Windows notification delivery needs an installed app.
+- **Restart diagnosis:** the inspector combines the observed parent chain, recognized manager signatures and the most recent stop target. It suggests where to investigate nodemon, Node watch mode, PM2, service managers or Docker. These are clues, not proof of restart causality. No automatic repeated termination is performed.
+- **Connection check:** manually select HTTP or HTTPS in the inspector. Portwhim tests local TCP connectivity, then sends a HEAD request to `/` and shows status, elapsed time and check time. Only loopback-reachable TCP bindings are allowed. Redirects and proxies are disabled; certificates are validated; response bodies are not read. HEAD rejection, authentication errors and HTTP 5xx are shown as responses, not labeled healthy. TCP connect and HTTP timeouts are 2 and 4 seconds.
+- **Interaction:** short view transitions, dialog entrance/exit, expandable project cards, hover/press feedback and result transitions. The inspector traps keyboard focus and restores it on close. System reduced-motion settings disable animation.
+
+These changes require a new source build. See [validation records](VALIDATION.md) for the checks actually completed.
+
 ## Get started
 
 ### Download a built app

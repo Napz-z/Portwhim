@@ -31,7 +31,7 @@ export function matchesQuery(l: Listener, query: string): boolean {
   if (port !== null) return l.port === port;
   const text = query.trim().toLowerCase();
   if (/^pid:\d+$/.test(text)) return l.pid === Number(text.slice(4));
-  return `${l.port} ${l.pid} ${l.name} ${l.service} ${l.address} ${l.provenance.project?.name || ''} ${l.provenance.project?.directory || ''}`.toLowerCase().includes(text);
+  return `${l.port} ${l.pid} ${l.name} ${l.service} ${l.address} ${l.provenance.project?.name || ''} ${l.provenance.project?.directory || ''} ${l.provenance.project?.git?.root || ''} ${l.provenance.project?.git?.branch || ''}`.toLowerCase().includes(text);
 }
 export function clearSearch(state: Filters): Filters { return { ...state, query: '' }; }
 export function resetFilters(): Filters { return { query: '', protocol: 'all', filter: 'all' }; }

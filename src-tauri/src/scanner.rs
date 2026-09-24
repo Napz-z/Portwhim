@@ -14,6 +14,7 @@ pub struct Project {
     pub marker: String,
     pub evidence: String,
     pub inferred: bool,
+    pub git: Option<crate::project::GitInfo>,
 }
 #[derive(Clone, Serialize, Debug)]
 pub struct Parent {
@@ -26,6 +27,7 @@ pub struct Provenance {
     pub parent: Option<Parent>,
     pub ancestors: Vec<Parent>,
     pub source: Option<String>,
+    pub manager: Option<String>,
 }
 #[derive(Clone, Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -185,6 +187,7 @@ pub fn project_at(candidate: &Path) -> Option<Project> {
                 marker: marker.into(),
                 evidence: String::new(),
                 inferred: true,
+                git: crate::project::git_info(&dir),
             });
         }
         if !dir.pop() {
@@ -313,6 +316,11 @@ fn system_managed(pid: Pid, sys: &System) -> bool {
         &root,
     )
 }
+fn restart_manager(signature: &str) -> Option<String> {
+    static RULE: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+    let rule = RULE.get_or_init(|| regex::Regex::new(r"(?i)\b(nodemon|pm2|supervisord|systemd|launchd|docker|com\.docker\.backend)\b|\bnode(?:\.exe)?\s+--watch\b").unwrap());
+    rule.find(signature).map(|m| m.as_str().to_lowercase())
+}
 fn provenance(pid: Pid, sys: &System, cache: &mut HashMap<PathBuf, Option<Project>>) -> Provenance {
     let chain = ancestry(pid, sys);
     let source = chain
@@ -352,6 +360,22 @@ fn provenance(pid: Pid, sys: &System, cache: &mut HashMap<PathBuf, Option<Projec
         parent: chain.first().cloned(),
         ancestors: chain.clone(),
         source,
+        manager: std::iter::once(pid)
+            .chain(chain.iter().map(|p| Pid::from_u32(p.pid)))
+            .find_map(|id| {
+                let p = sys.process(id)?;
+                let signature = format!(
+                    "{} {}",
+                    p.name().to_string_lossy(),
+                    p.cmd()
+                        .iter()
+                        .take(16)
+                        .map(|v| v.to_string_lossy())
+                        .collect::<Vec<_>>()
+                        .join(" ")
+                );
+                restart_manager(&signature)
+            }),
     };
     for (index, id) in std::iter::once(pid)
         .chain(chain.first().map(|p| Pid::from_u32(p.pid)))
@@ -635,6 +659,7 @@ mod tests {
                 parent: None,
                 ancestors: vec![],
                 source: None,
+                manager: None,
             },
         };
         assert!(scan_warnings(&[make(4, 0), make(100, 123), make(200, 0)]).is_empty());

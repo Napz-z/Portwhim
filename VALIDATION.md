@@ -1,3 +1,20 @@
+# Project workspace, port watches and interaction motion — 2026-09-24
+
+Windows x64. This is a local, unreleased development build; its package version remains 0.1.2 and the public v0.1.2 installers do not include these changes. Rust 1.98.1, Visual Studio Build Tools 2022 17.14.41, MSVC 14.44.35207 and Windows SDK 10.0.26100.0 were installed with the owner's approval for this validation.
+
+Passed:
+
+- Frontend type checking and production build; 38 frontend tests, including Git/worktree grouping, expected-service persistence validation and restart explanations.
+- 16 Rust unit tests, including normal/linked Git worktrees, localhost-only HTTP targets, real HEAD responses (503, 302 and 405), no redirect following, silent watch baselines, debounce and cooldown behavior.
+- The explicitly enabled real TCP/UDP integration fixture: native discovery, process identity checks, safe termination of the owned fixture and socket disappearance.
+- Windows debug executable and NSIS installer build with the locked dependency graph; local installation returned success and the installed app opened and scanned real sockets.
+- Native UI showed the actual Portwhim project directory and main branch. A test-owned local HTTP server returned 503; the inspector displayed TCP connected, HTTP 503 and elapsed time. With explorer auto-refresh paused, stopping that server produced an independent port-watch alert after the debounce interval. No notification submission error was reported. The Windows desktop toast itself was not visually captured, so delivery through system notification settings is not claimed as verified.
+- The visibly simulated browser fixture covered separate worktree cards, missing expected services, expected-service and favorite persistence after reload, mocked HTTP results and manager hints. Inspector entry/exit, keyboard Escape and focus restoration were checked; no browser console errors or horizontal overflow were observed at 1440 by 940. Reduced-motion handling was inspected in code; the OS motion preference was not changed.
+
+The test server was stopped and its native watched favorite removed; explorer refresh was restored. The native app remains open. macOS/Linux execution, live Docker attribution, hide-to-tray/reopen and the range of HTTPS certificate failure modes were not exercised. Watch alerts are sampled observations, not complete process history. HTTP status codes and project association do not establish application health.
+
+---
+
 # Stop feedback and first-scan states — 2026-09-14
 
 Windows x64. TypeScript checking and the Vite production build passed. Twenty-nine frontend tests passed, including target-process identity, recycled-PID separation, port release, replacement ownership and still-listening stop outcomes. Seven Rust unit tests passed. The owned TCP/UDP fixture integration test passed outside the restricted sandbox: native discovery, identity checks, termination and socket disappearance all completed without touching an unrelated process.

@@ -1,8 +1,9 @@
 <!doctype html><html><head><meta charset="UTF-8"><base href="/"><title>Portwhim test fixture</title></head><body>
-<div style="position:fixed;top:0;left:40%;z-index:100;color:white;background:#663300;padding:4px">TEST FIXTURE — simulated sockets, no process termination</div>
+<div style="position:fixed;top:0;left:35%;z-index:100;color:white;background:#663300;padding:4px">TEST FIXTURE — simulated sockets, no process termination</div>
 <div id="root"></div><script type="module">
-const target={id:'fixture',pid:800,name:'test-node',port:3000,protocol:'TCP',address:'127.0.0.1',started:'2026-09-23T00:00:00Z',cpu:1,memory:1048576,service:'Vite',confidence:'process',category:'app',scope:'loopback',systemManaged:false,canStop:true,stopReason:null,provenance:{project:null,parent:null,ancestors:[],source:null}};
-let rows=[target,{...target,id:'other',pid:3000,port:8080,name:'other-process'}];
-window.portwhim={scan:async()=>({listeners:rows,scannedAt:new Date().toISOString(),hostname:'SIMULATED FIXTURE',platform:'win32',warnings:[]}),stop:async()=>{rows=rows.filter(r=>r.id!=='fixture');return{};},copy:async()=>{},open:async()=>{}};
+const project=(root,branch='main')=>({name:'shop-web',directory:root+'/web',marker:'package.json',evidence:'Simulated fixture',inferred:true,git:{root,branch,worktree:branch!=='main'}});
+const target={id:'fixture',pid:800,name:'node',port:3000,protocol:'TCP',address:'127.0.0.1',started:'2026-09-23T00:00:00Z',cpu:1,memory:1048576,service:'Vite',confidence:'process',category:'app',scope:'loopback',systemManaged:false,canStop:true,stopReason:null,provenance:{project:project('C:/dev/shop'),parent:{pid:700,name:'nodemon'},ancestors:[{pid:700,name:'nodemon'}],source:'nodemon (parent process)',manager:'nodemon'}};
+let rows=[target,{...target,id:'api',pid:801,port:8080,service:'Node.js'},{...target,id:'worktree',pid:802,port:3001,provenance:{...target.provenance,project:project('C:/dev/shop-feature','feature/cart')}},{...target,id:'unknown',pid:3000,port:9000,provenance:{project:null,parent:null,ancestors:[],source:null}}];
+window.portwhim={scan:async()=>({listeners:rows,scannedAt:new Date().toISOString(),hostname:'SIMULATED FIXTURE',platform:'win32',warnings:[]}),stop:async(id)=>{rows=rows.filter(r=>r.id!==id);return{};},copy:async()=>{},open:async()=>{},openProject:async()=>{},checkHealth:async()=>({url:'http://127.0.0.1:3000/',connected:true,status:503,elapsedMs:12,checkedAt:new Date().toISOString(),message:'Simulated HTTP response. A response does not establish application health.'}),requestNotificationPermission:async()=>true,configureWatch:async()=>{},watchStatus:async()=>({alerts:[],error:null,scannedAt:new Date().toISOString()})};
 await import('/src/main.tsx');
 </script></body></html>

@@ -1,3 +1,5 @@
+import { HealthCheck } from './HealthCheck';
+import { restartDiagnosis } from './diagnosis';
 import React, { useEffect, useRef } from 'react';
 import { ArrowUpRight, Boxes, Copy, Database, Square, Terminal, X } from 'lucide-react';
 import type { Listener } from './shared';
@@ -11,25 +13,34 @@ const cpu = (value: number|null) => value === null ? '—' : `${value.toFixed(1)
 const time = (value: string|null) => value ? new Date(value).toLocaleString() : 'Unavailable';
 const icon = (listener: Listener) => listener.category === 'database' ? <Database size={22}/> : listener.category === 'container' ? <Boxes size={22}/> : <Terminal size={22}/>;
 
-export function ProcessInspector({ row, all, selected, acting, close, select, action }: {
-  row: Listener; all: Listener[]; selected: string; acting: boolean;
+export function ProcessInspector({ row, all, selected, acting, close, select, action, previousTarget }: {
+  previousTarget?:Listener; row: Listener; all: Listener[]; selected: string; acting: boolean;
   close: () => void; select: (id: string) => void; action: Action;
 }) {
+  const diagnosis=restartDiagnosis(row,previousTarget);
+  const dialog=useRef<HTMLElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const target = openTarget(row);
   const bindings = all.filter(l => l.pid === row.pid && l.port === row.port && l.protocol === row.protocol);
   const related = all.filter(l => l.pid === row.pid && (l.port !== row.port || l.protocol !== row.protocol));
   useEffect(() => {
     const previous = document.body.style.overflow;
+    const previouslyFocused=document.activeElement as HTMLElement|null;
     document.body.style.overflow = 'hidden';
     closeButton.current?.focus();
-    return () => { document.body.style.overflow = previous; };
+    return () => { document.body.style.overflow = previous; previouslyFocused?.focus(); };
   }, []);
 
   return <div className="inspector-shade" onMouseDown={event => {
     if (event.target === event.currentTarget) close();
   }}>
-    <section className="inspector-dialog" role="dialog" aria-modal="true" aria-label="Process details">
+    <section ref={dialog} onKeyDown={event=>{
+      if(event.key!=='Tab')return;
+      const buttons=Array.from(dialog.current!.querySelectorAll<HTMLElement>('button:not(:disabled), select:not(:disabled), input:not(:disabled), [tabindex="0"]'));
+      const first=buttons[0],last=buttons.at(-1);
+      if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
+      else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
+    }} className="inspector-dialog" role="dialog" aria-modal="true" aria-label="Process details">
       <header className="inspector-header">
         <span>PROCESS INSPECTOR</span>
         <button ref={closeButton} className="icon-button" aria-label="Close details" onClick={close}><X size={19}/></button>
@@ -82,6 +93,8 @@ export function ProcessInspector({ row, all, selected, acting, close, select, ac
               <h3>Other sockets in this process</h3>
               <div>{related.map(listener => <button key={identity(listener)} aria-label={inspectLabel(listener)} onClick={() => select(identity(listener))}>:{listener.port} <small>{listener.protocol} · {listener.address}</small></button>)}{related.length === 0 && <p>No other sockets.</p>}</div>
             </section>
+            <HealthCheck key={identity(row)} row={row}/>
+            <section className="inspector-section restart-diagnosis"><h3>Why might this come back?</h3><strong>{diagnosis.title}</strong><p>{diagnosis.detail}</p><p className="diagnosis-next">{diagnosis.next}</p></section>
             <section className="inspector-section stop-area">
               <p>Stopping a process closes all of its ports.</p>
               <button className="danger" disabled={!canRequestStop(row) || acting} onClick={() => action('stop', row)}><Square size={14}/> Stop process</button>

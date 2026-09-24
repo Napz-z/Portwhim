@@ -4,6 +4,10 @@ use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 use tauri_plugin_opener::OpenerExt;
 mod browser;
+mod health;
+mod project;
+mod watch;
+use tauri_plugin_notification::NotificationExt;
 mod docker;
 mod tray;
 #[tauri::command]
@@ -141,14 +145,54 @@ async fn stop(
     state.lock().map_err(|e| e.to_string())?.stopping = false;
     result
 }
+
+#[tauri::command]
+async fn check_health(
+    state: State<'_, Store>,
+    id: String,
+    scheme: String,
+) -> Result<health::Report, String> {
+    let row = selected(&state, &id)?;
+    tauri::async_runtime::spawn_blocking(move || {
+        health::check(&row.protocol, &row.address, row.port, &scheme)
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+#[tauri::command]
+fn watch_config(
+    state: State<'_, Mutex<watch::Watcher>>,
+    favorites: Vec<watch::Favorite>,
+) -> Result<(), String> {
+    state
+        .lock()
+        .map_err(|e| e.to_string())?
+        .configure(favorites)
+}
+#[tauri::command]
+fn watch_status(state: State<'_, Mutex<watch::Watcher>>) -> Result<watch::Status, String> {
+    Ok(state.lock().map_err(|e| e.to_string())?.status.clone())
+}
+#[tauri::command]
+fn notification_permission(app: tauri::AppHandle) -> Result<bool, String> {
+    Ok(app
+        .notification()
+        .request_permission()
+        .map_err(|e| e.to_string())?
+        == tauri_plugin_notification::PermissionState::Granted)
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_notification::init())
+        .manage(Mutex::new(watch::Watcher::default()))
         .manage(Store::default())
         .setup(|app| {
             tray::setup(app.handle())?;
+            watch::start(app.handle().clone());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -159,7 +203,11 @@ pub fn run() {
             stop,
             docker_ports,
             tray_update,
-            hide_to_tray
+            hide_to_tray,
+            check_health,
+            watch_config,
+            watch_status,
+            notification_permission
         ])
         .run(tauri::generate_context!())
         .expect("Failed to run Portwhim");
@@ -174,6 +222,8 @@ mod project_tests {
         let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
         assert!(existing_directory(root.to_str().unwrap()).is_ok());
         assert!(existing_directory(root.join("Cargo.toml").to_str().unwrap()).is_err());
-        assert!(existing_directory(root.join("missing-project-directory").to_str().unwrap()).is_err());
+        assert!(
+            existing_directory(root.join("missing-project-directory").to_str().unwrap()).is_err()
+        );
     }
 }
