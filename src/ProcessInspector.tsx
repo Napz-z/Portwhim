@@ -1,3 +1,5 @@
+import { motion, useIsPresent } from 'motion/react';
+import { gentleSpring, useMotionSettings } from './Motion';
 import { HealthCheck } from './HealthCheck';
 import { restartDiagnosis } from './diagnosis';
 import React, { useEffect, useRef } from 'react';
@@ -17,6 +19,8 @@ export function ProcessInspector({ row, all, selected, acting, close, select, ac
   previousTarget?:Listener; row: Listener; all: Listener[]; selected: string; acting: boolean;
   close: () => void; select: (id: string) => void; action: Action;
 }) {
+  const { reduced } = useMotionSettings();
+  const present = useIsPresent();
   const diagnosis=restartDiagnosis(row,previousTarget);
   const dialog=useRef<HTMLElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
@@ -27,16 +31,16 @@ export function ProcessInspector({ row, all, selected, acting, close, select, ac
     const previous = document.body.style.overflow;
     const previouslyFocused=document.activeElement as HTMLElement|null;
     document.body.style.overflow = 'hidden';
-    closeButton.current?.focus();
-    return () => { document.body.style.overflow = previous; previouslyFocused?.focus(); };
+    closeButton.current?.focus({preventScroll:true});
+    return () => { document.body.style.overflow = previous; if(previouslyFocused?.isConnected)previouslyFocused.focus({preventScroll:true}); };
   }, []);
 
-  return <div className="inspector-shade" onMouseDown={event => {
+  return <motion.div variants={{closed:{opacity:0},open:{opacity:1}}} transition={{duration:reduced?0:.22}} style={{pointerEvents:present?"auto":"none"}} className="inspector-shade" onMouseDown={event => {
     if (event.target === event.currentTarget) close();
   }}>
-    <section ref={dialog} onKeyDown={event=>{
+    <motion.section inert={!present} variants={{closed:{opacity:0,y:reduced?0:32,scale:reduced?1:.94},open:{opacity:1,y:0,scale:1}}} transition={reduced?{duration:0}:gentleSpring} ref={dialog} onKeyDown={event=>{
       if(event.key!=='Tab')return;
-      const buttons=Array.from(dialog.current!.querySelectorAll<HTMLElement>('button:not(:disabled), select:not(:disabled), input:not(:disabled), [tabindex="0"]'));
+      const buttons=Array.from(dialog.current!.querySelectorAll<HTMLElement>('button:not(:disabled), select:not(:disabled), input:not(:disabled), [tabindex="0"],summary')).filter(el=>el.getClientRects().length&&!el.closest('[inert]'));
       const first=buttons[0],last=buttons.at(-1);
       if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
       else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
@@ -103,6 +107,6 @@ export function ProcessInspector({ row, all, selected, acting, close, select, ac
           </div>
         </div>
       </div>
-    </section>
-  </div>;
+    </motion.section>
+  </motion.div>;
 }

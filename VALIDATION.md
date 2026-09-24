@@ -1,3 +1,18 @@
+# Continuous motion and compact workspace tools — 2026-09-24
+
+Windows x64. The screenshot's always-visible favorite form, watch alert block, tray explanation and recent activity panel have been replaced with compact Favorites / Activity controls and an icon for hiding to the tray. Favorites and session history remain available in sliding panels. Motion 13.4.2 is pinned in the pnpm lockfile. The approved brand mark is unchanged.
+
+Verification:
+
+- Frontend type checking and production build passed; all 38 existing frontend tests passed. Windows debug NSIS packaging and installation succeeded. Backend behavior is unchanged in this update.
+- The simulated browser fixture has an opt-in `?motionAudit=1` audit that samples computed transforms, opacity, height and blur for 50 animation frames after each click. It observed 24 distinct panel-entry states, 25 panel-exit states, 27 shared-segment states, 14 view-transition states, 19 accordion states and 25 inspector-entry states. Exiting panels were removed and focus returned to their trigger. These observations establish working intermediate frames, not a hardware frame-rate guarantee.
+- Rapid Projects / Process map / List switching settled on the requested view with no leftover dialog. Inspector Shift+Tab wrapped to the final control; Escape closed it. Reduced motion produced an immediate transition and no intermediate transforms; switching back to Follow system restored full motion on this host. Favorite creation was checked through the new drawer.
+- Native installed WebView scanned real local sockets. The compact toolbar, sidebar selection, favorite drawer, expanding form and Escape dismissal were visually checked. Screenshots captured intermediate entry/form frames and the fully restored main view. A sidebar label stacking issue found in preview was fixed, and the About entry now remains available in shorter windows.
+
+The local package remains an unreleased 0.1.2 development build. macOS/Linux, high-refresh displays and sustained performance under heavy CPU load were not benchmarked. The browser audit is development-only and is not imported by the desktop bundle.
+
+---
+
 # Project workspace, port watches and interaction motion — 2026-09-24
 
 Windows x64. This is a local, unreleased development build; its package version remains 0.1.2 and the public v0.1.2 installers do not include these changes. Rust 1.98.1, Visual Studio Build Tools 2022 17.14.41, MSVC 14.44.35207 and Windows SDK 10.0.26100.0 were installed with the owner's approval for this validation.
