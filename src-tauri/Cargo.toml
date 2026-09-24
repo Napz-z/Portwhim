@@ -1,6 +1,6 @@
 [package]
 name = "portwhim"
-version = "0.1.1"
+version = "0.1.2"
 description = "Local ports and processes"
 authors = ["Portwhim contributors"]
 edition = "2021"
